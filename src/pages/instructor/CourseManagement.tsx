@@ -13,7 +13,7 @@ import { useCourseComments, useCommentMutations } from '@/hooks/useCourseComment
 import CourseHeader from '@/components/course/CourseHeader';
 import ContentTab from '@/components/course/ContentTab';
 import StudentsTab from '@/components/course/StudentsTab';
-import DiscussionsTab from '@/components/course/DiscussionsTab';
+import CourseForum from '@/components/course/CourseForum';
 import { Button } from '@/components/ui/button';
 
 const CourseManagement = () => {
@@ -121,9 +121,9 @@ const CourseManagement = () => {
               <Users className="h-4 w-4" />
               Students
             </TabsTrigger>
-            <TabsTrigger value="discussions" className="flex items-center gap-2">
+            <TabsTrigger value="forum" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Discussions
+              Forum
             </TabsTrigger>
           </TabsList>
 
@@ -144,8 +144,8 @@ const CourseManagement = () => {
             />
           </TabsContent>
 
-          <TabsContent value="discussions">
-            <DiscussionsTab courseId={courseId || ''} />
+          <TabsContent value="forum">
+            <CourseForum courseId={courseId || ''} />
           </TabsContent>
         </Tabs>
       </main>

@@ -14,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import CourseHeader from './CourseHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DiscussionsTab from './DiscussionsTab';
 import ContentHub from './ContentHub';
 import CourseForum from './CourseForum';
 import CourseQuizzesTab from './CourseQuizzesTab';
@@ -95,10 +94,6 @@ const StudentCourseView = () => {
           <TabsTrigger value="quizzes" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
             Quizzes
-          </TabsTrigger>
-          <TabsTrigger value="discussions" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Discussions
           </TabsTrigger>
           <TabsTrigger value="forum" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
@@ -198,10 +193,6 @@ const StudentCourseView = () => {
 
         <TabsContent value="quizzes">
           <CourseQuizzesTab courseId={courseId || ''} />
-        </TabsContent>
-
-        <TabsContent value="discussions">
-          <DiscussionsTab courseId={courseId || ''} />
         </TabsContent>
         
         <TabsContent value="forum">
