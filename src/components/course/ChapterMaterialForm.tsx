@@ -17,6 +17,7 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import QuizCreationForm from './QuizCreationForm';
 
 interface ChapterMaterialFormProps {
   chapterId: string;
@@ -34,18 +35,18 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
   const [deadline, setDeadline] = useState<Date>();
   const [totalMarks, setTotalMarks] = useState(100);
   const [selectedQuiz, setSelectedQuiz] = useState<string>('');
-  const [availableQuizzes, setAvailableQuizzes] = useState<any[]>([]);
+  const [showQuizCreation, setShowQuizCreation] = useState(false);
+  const [courseId, setCourseId] = useState<string>('');
 
-  // Fetch available quizzes when quiz type is selected
+  // Fetch course ID when quiz type is selected
   useEffect(() => {
     if (type === 'quiz') {
-      fetchAvailableQuizzes();
+      fetchCourseId();
     }
   }, [type]);
 
-  const fetchAvailableQuizzes = async () => {
+  const fetchCourseId = async () => {
     try {
-      // Get course ID from chapter
       const { data: chapterData } = await supabase
         .from('chapters')
         .select('course_id')
@@ -53,17 +54,17 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
         .single();
 
       if (chapterData) {
-        const { data: quizzes } = await supabase
-          .from('quizzes')
-          .select('id, title, description, question_count')
-          .eq('course_id', chapterData.course_id)
-          .eq('is_published', true);
-
-        setAvailableQuizzes(quizzes || []);
+        setCourseId(chapterData.course_id);
       }
     } catch (error) {
-      console.error('Error fetching quizzes:', error);
+      console.error('Error fetching course ID:', error);
     }
+  };
+
+  const handleQuizCreated = (quizId: string) => {
+    setSelectedQuiz(quizId);
+    setShowQuizCreation(false);
+    toast.success('Quiz created and selected successfully!');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -231,30 +232,33 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
             </div>
           )}
 
-          {type === 'quiz' && (
+          {type === 'quiz' && !showQuizCreation && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">Select Quiz</label>
-              <Select
-                value={selectedQuiz}
-                onValueChange={setSelectedQuiz}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a quiz to embed" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableQuizzes.map((quiz) => (
-                    <SelectItem key={quiz.id} value={quiz.id}>
-                      {quiz.title} ({quiz.question_count} questions)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {availableQuizzes.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  No published quizzes available. Create a quiz first.
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Quiz</label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowQuizCreation(true)}
+                >
+                  Create New Quiz
+                </Button>
+              </div>
+              {selectedQuiz && (
+                <p className="text-sm text-green-600">
+                  ✓ Quiz created and will be embedded in this material
                 </p>
               )}
             </div>
+          )}
+
+          {type === 'quiz' && showQuizCreation && (
+            <QuizCreationForm
+              courseId={courseId}
+              onQuizCreated={handleQuizCreated}
+              onCancel={() => setShowQuizCreation(false)}
+            />
           )}
 
           <div className="space-y-2">

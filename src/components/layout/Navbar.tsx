@@ -85,12 +85,6 @@ const Navbar = () => {
           <Link to="/courses" className="text-foreground/80 hover:text-foreground transition-colors">
             Courses
           </Link>
-          <Link to="/content-hub" className="text-foreground/80 hover:text-foreground transition-colors">
-            Content Hub
-          </Link>
-          <Link to="/quizzes" className="text-foreground/80 hover:text-foreground transition-colors">
-            Quizzes
-          </Link>
         </div>
 
         <div className="flex items-center gap-4">
