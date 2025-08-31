@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/accordion";
 import { FileText, MessageSquare, Lock, FolderOpen, BookOpen, Award } from 'lucide-react';
 import ChapterMaterialViewer from './ChapterMaterialViewer';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import CourseHeader from './CourseHeader';
@@ -25,8 +25,12 @@ import { Button } from '@/components/ui/button';
 
 const StudentCourseView = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchParams] = useSearchParams();
   const { user, profile } = useAuth();
   const [showCertificate, setShowCertificate] = useState(false);
+  
+  // Get the tab from URL params, default to 'content'
+  const activeTab = searchParams.get('tab') || 'content';
   
   // Fetch course and its chapters
   const { data: courseData, isLoading: isLoadingCourse } = useQuery({
@@ -109,7 +113,7 @@ const StudentCourseView = () => {
         </Card>
       )}
       
-      <Tabs defaultValue="content" className="mt-6">
+      <Tabs value={activeTab} className="mt-6">
         <TabsList>
           <TabsTrigger value="content" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />

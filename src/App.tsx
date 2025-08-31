@@ -16,6 +16,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseQuizzes from "./pages/instructor/CourseQuizzes";
 import QuizBattles from "./pages/quiz/QuizBattles";
 import QuizBattlePage from "./pages/quiz/QuizBattlePage";
+import QuizTakingPage from "./pages/quiz/QuizTakingPage";
 import Cart from "./pages/Cart";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import { AuthProvider } from "./components/auth/AuthProvider";
@@ -52,6 +53,7 @@ const App = () => {
               <Route path="/quizzes" element={<ProtectedRoute><QuizBattles /></ProtectedRoute>} />
               <Route path="/quiz-battles" element={<QuizBattles />} />
               <Route path="/quiz-battle/:roomId" element={<QuizBattlePage />} />
+              <Route path="/quiz/:quizId" element={<ProtectedRoute><QuizTakingPage /></ProtectedRoute>} />
               
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
