@@ -10,4 +10,4 @@ SUPABASE_HEADERS = {
 }
 
 # Gemini settings
-GEMINI_API_KEY = "AIzaSyASik60ziPHwdQLH1OP_H2m24IHLbwiFi0"
+GEMINI_API_KEY = "AIzaSyDY5FJ3Ff4EgaePkg-4owlVoFvK9KruhpQ"

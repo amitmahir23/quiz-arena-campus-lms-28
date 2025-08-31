@@ -2,7 +2,7 @@
 import google.generativeai as genai
 import requests
 
-genai.configure(api_key="AIzaSyASik60ziPHwdQLH1OP_H2m24IHLbwiFi0")
+genai.configure(api_key="AIzaSyDY5FJ3Ff4EgaePkg-4owlVoFvK9KruhpQ")
 model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
 BACKEND_API = "http://127.0.0.1:5000"
