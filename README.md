@@ -21,7 +21,8 @@ Services: AWS MediaConvert, CloudFront, S3, Stripe for payments
 
 Tech Stack Used: 
 Frontend-React
-Database and Cloud-Supabase
+Database -Supabase
+Cloud - Supabase
 Backend-Flask
 API's used:
 a.Video Conferencing- Zego Cloud
@@ -29,8 +30,8 @@ b.Authentication- Google OAuth
 c.Chatbot Model- Gemini
 d.Payments- Stripe
 
-Deployed URL: 
+Deployed URL: https://gigalearn-rho.vercel.app/
 
-Demo Video Link: 
+Demo Video Link: https://drive.google.com/drive/folders/1ER2DKs0zptOYNr-JsZwONo70S9GmP1HF?usp=sharing
 
  -->
