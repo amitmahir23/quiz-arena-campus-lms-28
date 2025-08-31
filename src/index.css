@@ -5,10 +5,10 @@
 
 @layer base {
   :root {
-    --background: 240 5% 96%;
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%;
+    --card: 197 37% 96%;
     --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
@@ -49,7 +49,7 @@
     --background: 240 6% 10%;
     --foreground: 210 40% 98%;
 
-    --card: 240 4% 16%;
+    --card: 197 37% 96%;
     --card-foreground: 210 40% 98%;
 
     --popover: 240 4% 16%;
@@ -91,7 +91,11 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
   }
 
   /* Custom star rating styling for dark mode */
@@ -106,15 +110,19 @@
 
 @layer components {
   .edu-card {
-    @apply bg-card rounded-xl shadow-sm border transition-all duration-200 hover:shadow-md;
+    @apply bg-card rounded-xl shadow-sm border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1;
   }
   
   .quiz-card {
-    @apply bg-card rounded-xl shadow-sm border transition-all duration-200 hover:shadow-md hover:border-edu-primary border-2;
+    @apply bg-card rounded-xl shadow-sm border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 hover:border-primary border-2;
   }
   
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5;
   }
 
   /* Dark mode improvements */
