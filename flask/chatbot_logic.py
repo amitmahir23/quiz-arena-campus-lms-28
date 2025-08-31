@@ -5,7 +5,7 @@ import requests
 genai.configure(api_key="AIzaSyDY5FJ3Ff4EgaePkg-4owlVoFvK9KruhpQ")
 model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
-BACKEND_API = "http://127.0.0.1:5000"
+BACKEND_API = "https://quiz-arena-campus-lms-28.onrender.com"
 
 def chatbot_with_data(user_input, student_id, progress_data, deadline_data):
     prompt = f"""
