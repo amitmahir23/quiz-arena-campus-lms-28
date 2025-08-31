@@ -34,7 +34,7 @@ const CompletionProgressChart = () => {
   ]
 
   // Custom colors that work well in both light and dark modes
-  const customColors = ['#3b82f6', '#10b981'] // blue and emerald that work in both modes
+  const customColors = ['#8b5cf6', '#10b981'] // purple and emerald that work in both modes
 
   return (
     <div style={{ height: 200 }} className="completion-progress-chart">

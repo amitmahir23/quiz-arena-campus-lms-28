@@ -316,7 +316,7 @@ const StudentDashboard = () => {
           <TabsContent value="analytics">
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               {/* Top row - full width Strengths & Weaknesses */}
-              <Card className="border shadow-md hover:shadow-lg transition-all lg:col-span-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 dark:from-cyan-950 dark:to-blue-950">
+              <Card className="border shadow-md hover:shadow-lg transition-all lg:col-span-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 dark:from-purple-950 dark:to-purple-950">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-xl">
                     <BarChart3 className="h-6 w-6 text-cyan-500" />
@@ -373,10 +373,10 @@ const StudentDashboard = () => {
               </Card>
 
               {/* Bottom row */}
-              <Card className="border shadow-md hover:shadow-lg transition-all lg:col-span-2 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-950 dark:to-indigo-950">
+              <Card className="border shadow-md hover:shadow-lg transition-all lg:col-span-2 bg-gradient-to-r from-purple-500/10 to-purple-600/10 dark:from-purple-950 dark:to-purple-950">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Activity className="h-5 w-5 text-blue-500" />
+                    <Activity className="h-5 w-5 text-purple-500" />
                     Activity Patterns
                   </CardTitle>
                   <CardDescription>Your engagement patterns over time</CardDescription>

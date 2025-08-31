@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 226 84% 59%;
+    --primary: 258 35% 54%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 258 35% 54%;
@@ -55,7 +55,7 @@
     --popover: 240 4% 16%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 226 84% 59%;
+    --primary: 258 35% 54%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 258 35% 54%;
@@ -131,7 +131,7 @@
   }
 
   .dark .badge-primary {
-    @apply bg-blue-800 text-blue-100;
+    @apply bg-purple-800 text-purple-100;
   }
 
   .dark .badge-secondary {
