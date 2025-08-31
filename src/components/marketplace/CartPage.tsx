@@ -20,24 +20,18 @@ export const CartPage = () => {
     try {
       // Check if all courses are free
       if (total === 0) {
-        // Handle free courses directly - create enrollments
-        // Get current user ID
+        // Ensure user is logged in
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        if (!user) {
+          toast.error('Please log in to enroll in courses');
+          window.location.href = '/auth';
+          return;
+        }
 
-        // Create enrollments for all free courses
-        const enrollmentData = cartItems.map(item => ({
-          student_id: user.id,
-          course_id: item.course_id
-        }));
+        // Enroll via secure edge function (handles RLS bypass safely)
+        const { data, error } = await supabase.functions.invoke('enroll-free-courses');
+        if (error) throw error;
 
-        const { error: enrollmentError } = await supabase
-          .from('enrollments')
-          .insert(enrollmentData);
-
-        if (enrollmentError) throw enrollmentError;
-
-        // Clear cart after successful enrollment
         clearCart();
         toast.success('Successfully enrolled in free courses!');
         

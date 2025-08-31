@@ -1,1 +1,6 @@
 project_id = "kcxzqtmdkpcapitzqsap"
+
+[functions.enroll-free-courses]
+verify_jwt = true
+
+# Keep other functions default-configured with JWT verification
