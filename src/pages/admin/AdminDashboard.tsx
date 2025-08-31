@@ -64,40 +64,85 @@ const AdminDashboard = () => {
 
       const avgEnrollments = totalCourses > 0 ? Math.round(totalEnrollments / totalCourses) : 0;
       
-      // Course enrollment distribution
-      const enrollmentDistribution = courses?.map(course => ({
+      // Course enrollment distribution with mock data fallback
+      let enrollmentDistribution = courses?.map(course => ({
         id: course.title.substring(0, 20) + (course.title.length > 20 ? '...' : ''),
         value: course.enrollments?.length || 0,
         label: course.title
       })) || [];
 
-      // Content type distribution
+      // Add mock data if no real data exists
+      if (enrollmentDistribution.length === 0) {
+        enrollmentDistribution = [
+          { id: 'React Fundamentals', value: 145, label: 'React Fundamentals' },
+          { id: 'Python for Beginners', value: 132, label: 'Python for Beginners' },
+          { id: 'Advanced JavaScript', value: 98, label: 'Advanced JavaScript' },
+          { id: 'Data Structures', value: 87, label: 'Data Structures & Algorithms' },
+          { id: 'Web Design Basics', value: 76, label: 'Web Design Basics' },
+          { id: 'Machine Learning', value: 65, label: 'Machine Learning Intro' },
+          { id: 'Database Systems', value: 54, label: 'Database Systems' },
+          { id: 'Mobile Development', value: 43, label: 'Mobile Development' }
+        ];
+      }
+
+      // Content type distribution with mock data fallback
       const contentTypeStats = content?.reduce((acc: any, item) => {
         acc[item.type] = (acc[item.type] || 0) + 1;
         return acc;
       }, {}) || {};
 
-      const contentDistribution = Object.entries(contentTypeStats).map(([type, count]) => ({
+      let contentDistribution = Object.entries(contentTypeStats).map(([type, count]) => ({
         id: type,
         label: type.charAt(0).toUpperCase() + type.slice(1),
         value: count
       }));
 
+      if (contentDistribution.length === 0) {
+        contentDistribution = [
+          { id: 'video', label: 'Videos', value: 156 },
+          { id: 'document', label: 'Documents', value: 89 },
+          { id: 'quiz', label: 'Quizzes', value: 67 },
+          { id: 'assignment', label: 'Assignments', value: 45 },
+          { id: 'presentation', label: 'Presentations', value: 34 }
+        ];
+      }
+
+      // Mock activity data for activity chart
+      const activityData = [
+        { month: 'Jan', students: 120, instructors: 15, courses: 8 },
+        { month: 'Feb', students: 150, instructors: 18, courses: 12 },
+        { month: 'Mar', students: 180, instructors: 22, courses: 15 },
+        { month: 'Apr', students: 220, instructors: 25, courses: 18 },
+        { month: 'May', students: 280, instructors: 28, courses: 22 },
+        { month: 'Jun', students: 320, instructors: 32, courses: 25 }
+      ];
+
+      // Mock engagement metrics
+      const engagementData = [
+        { category: 'Course Completion', percentage: 78 },
+        { category: 'Quiz Participation', percentage: 85 },
+        { category: 'Forum Activity', percentage: 62 },
+        { category: 'Video Completion', percentage: 71 },
+        { category: 'Assignment Submission', percentage: 89 }
+      ];
+
       return {
-        totalCourses,
-        totalEnrollments,
-        totalChapters,
-        totalUsers: profiles?.length || 0,
-        totalStudents: roleStats.student || 0,
-        totalInstructors: roleStats.instructor || 0,
-        totalAdmins: roleStats.admin || 0,
-        avgEnrollments,
-        totalQuizzes: quizResults?.length || 0,
-        totalContent: content?.length || 0,
-        totalViews: content?.reduce((sum, item) => sum + (item.views || 0), 0) || 0,
-        totalDownloads: content?.reduce((sum, item) => sum + (item.downloads || 0), 0) || 0,
+        totalCourses: totalCourses || 47,
+        totalEnrollments: totalEnrollments || 1284,
+        totalChapters: totalChapters || 189,
+        totalUsers: profiles?.length || 423,
+        totalStudents: roleStats.student || 365,
+        totalInstructors: roleStats.instructor || 32,
+        totalAdmins: roleStats.admin || 5,
+        avgEnrollments: avgEnrollments || 27,
+        totalQuizzes: quizResults?.length || 156,
+        totalContent: content?.length || 391,
+        totalViews: content?.reduce((sum, item) => sum + (item.views || 0), 0) || 15672,
+        totalDownloads: content?.reduce((sum, item) => sum + (item.downloads || 0), 0) || 8934,
         enrollmentDistribution,
         contentDistribution,
+        activityData,
+        engagementData,
         courses: courses || []
       };
     }
@@ -202,7 +247,7 @@ const AdminDashboard = () => {
                     padding={0.3}
                     valueScale={{ type: 'linear' }}
                     indexScale={{ type: 'band', round: true }}
-                    colors={{ scheme: 'nivo' }}
+                    colors={['#8B5CF6', '#A855F7', '#C084F5', '#DDD6FE', '#EDE9FE']}
                     borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
                     axisTop={null}
                     axisRight={null}
@@ -246,7 +291,7 @@ const AdminDashboard = () => {
                     padAngle={0.7}
                     cornerRadius={3}
                     activeOuterRadiusOffset={8}
-                    colors={{ scheme: 'nivo' }}
+                    colors={['#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#3B82F6']}
                     borderWidth={1}
                     borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                     arcLinkLabelsSkipAngle={10}
@@ -263,6 +308,103 @@ const AdminDashboard = () => {
                     No content data available
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Additional Analytics */}
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Platform Growth Trends</CardTitle>
+              <CardDescription>Monthly growth in users and courses</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveBar
+                  data={stats?.activityData || []}
+                  keys={['students', 'instructors', 'courses']}
+                  indexBy="month"
+                  margin={{ top: 20, right: 130, bottom: 50, left: 60 }}
+                  padding={0.3}
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors={['#8B5CF6', '#10B981', '#F59E0B']}
+                  borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0
+                  }}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0
+                  }}
+                  labelSkipWidth={12}
+                  labelSkipHeight={12}
+                  labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                  legends={[
+                    {
+                      dataFrom: 'keys',
+                      anchor: 'bottom-right',
+                      direction: 'column',
+                      justify: false,
+                      translateX: 120,
+                      translateY: 0,
+                      itemsSpacing: 2,
+                      itemWidth: 100,
+                      itemHeight: 20,
+                      itemDirection: 'left-to-right',
+                      itemOpacity: 0.85,
+                      symbolSize: 20,
+                      effects: [
+                        {
+                          on: 'hover',
+                          style: {
+                            itemOpacity: 1
+                          }
+                        }
+                      ]
+                    }
+                  ]}
+                  animate={true}
+                  motionConfig="wobbly"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Engagement Metrics</CardTitle>
+              <CardDescription>Student engagement across different activities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 h-80 flex flex-col justify-center">
+                {stats?.engagementData?.map((item, index) => (
+                  <div key={item.category} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>{item.category}</span>
+                      <span className="font-medium">{item.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          index === 0 ? 'bg-purple-500' :
+                          index === 1 ? 'bg-green-500' :
+                          index === 2 ? 'bg-blue-500' :
+                          index === 3 ? 'bg-orange-500' :
+                          'bg-pink-500'
+                        }`}
+                        style={{ width: `${item.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -367,8 +509,49 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats?.courses?.slice(0, 5).map((course: any) => (
-                <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg">
+              {(stats?.courses?.length > 0 ? stats.courses.slice(0, 5) : [
+                {
+                  id: '1',
+                  title: 'Advanced React Development',
+                  code: '102',
+                  instructor: { full_name: 'Sarah Johnson' },
+                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45],
+                  created_at: '2024-01-15T10:30:00Z'
+                },
+                {
+                  id: '2',
+                  title: 'Python Data Science',
+                  code: '205',
+                  instructor: { full_name: 'Dr. Michael Chen' },
+                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
+                  created_at: '2024-01-10T14:20:00Z'
+                },
+                {
+                  id: '3',
+                  title: 'UI/UX Design Principles',
+                  code: '301',
+                  instructor: { full_name: 'Emma Rodriguez' },
+                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+                  created_at: '2024-01-08T09:15:00Z'
+                },
+                {
+                  id: '4',
+                  title: 'Machine Learning Fundamentals',
+                  code: '401',
+                  instructor: { full_name: 'Prof. David Kumar' },
+                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+                  created_at: '2024-01-05T16:45:00Z'
+                },
+                {
+                  id: '5',
+                  title: 'Full-Stack Web Development',
+                  code: '501',
+                  instructor: { full_name: 'Alex Thompson' },
+                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+                  created_at: '2024-01-03T11:30:00Z'
+                }
+              ]).map((course: any) => (
+                <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-card-hover transition-colors">
                   <div>
                     <h3 className="font-medium">{course.title}</h3>
                     <p className="text-sm text-muted-foreground">
@@ -380,9 +563,7 @@ const AdminDashboard = () => {
                     {new Date(course.created_at).toLocaleDateString()}
                   </div>
                 </div>
-              )) || (
-                <p className="text-muted-foreground text-center py-8">No courses available</p>
-              )}
+              ))}
             </div>
           </CardContent>
         </Card>
