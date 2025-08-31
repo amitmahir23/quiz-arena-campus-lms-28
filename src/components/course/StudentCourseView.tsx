@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FileText, FileVideo, File, MessageSquare, Lock, FolderOpen } from 'lucide-react';
+import { FileText, MessageSquare, Lock, FolderOpen } from 'lucide-react';
 import ChapterMaterialViewer from './ChapterMaterialViewer';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import CourseHeader from './CourseHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DiscussionsTab from './DiscussionsTab';
 import ContentHub from './ContentHub';
+import CourseForum from './CourseForum';
 import { useCompletedMaterials } from '@/hooks/useCompletedMaterials';
 
 const StudentCourseView = () => {
@@ -93,6 +94,10 @@ const StudentCourseView = () => {
           <TabsTrigger value="discussions" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Discussions
+          </TabsTrigger>
+          <TabsTrigger value="forum" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Forum
           </TabsTrigger>
         </TabsList>
 
@@ -188,6 +193,10 @@ const StudentCourseView = () => {
 
         <TabsContent value="discussions">
           <DiscussionsTab courseId={courseId || ''} />
+        </TabsContent>
+        
+        <TabsContent value="forum">
+          <CourseForum courseId={courseId || ''} />
         </TabsContent>
       </Tabs>
     </div>
