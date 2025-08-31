@@ -16,7 +16,9 @@ interface CreateCourseFormProps {
 export const CreateCourseForm = ({ userId, onSuccess, onCancel }: CreateCourseFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
-    description: ''
+    description: '',
+    price: '',
+    preview_description: ''
   });
 
   const handleCreateCourse = async (e: React.FormEvent) => {
@@ -28,13 +30,16 @@ export const CreateCourseForm = ({ userId, onSuccess, onCancel }: CreateCourseFo
           instructor_id: userId,
           title: formData.title,
           description: formData.description,
+          preview_description: formData.preview_description,
+          price: parseFloat(formData.price) || 0,
+          is_published: false,
           code: null
         } as any);
 
       if (error) throw error;
 
       toast.success('Course created successfully');
-      setFormData({ title: '', description: '' });
+      setFormData({ title: '', description: '', price: '', preview_description: '' });
       onSuccess();
     } catch (error: any) {
       toast.error(error.message);
@@ -62,6 +67,27 @@ export const CreateCourseForm = ({ userId, onSuccess, onCancel }: CreateCourseFo
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Preview Description (for marketplace)</label>
+            <Textarea
+              value={formData.preview_description}
+              onChange={(e) => setFormData(prev => ({ ...prev, preview_description: e.target.value }))}
+              placeholder="A short description to show on the marketplace"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Price (USD)</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.price}
+              onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+              placeholder="0.00"
               required
             />
           </div>

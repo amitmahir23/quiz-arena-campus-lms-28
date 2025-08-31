@@ -1,12 +1,14 @@
 
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Book, Search, User, LogOut, Moon, Sun, Video } from "lucide-react";
+import { Bell, Book, Search, User, LogOut, Moon, Sun, Video, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { useCart } from "@/hooks/useCart";
 import { useTheme } from "@/hooks/useTheme";
 import {
   DropdownMenu,
@@ -20,7 +22,8 @@ import { CreateMeetingButton } from "@/components/video/CreateMeetingButton";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { itemCount } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -105,6 +108,19 @@ const Navbar = () => {
           </form>
 
           {user && <CreateMeetingButton />}
+
+          {user && profile?.role === 'student' && (
+            <Link to="/cart" className="relative">
+              <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-foreground">
+                <ShoppingCart className="h-5 w-5" />
+                {itemCount > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0">
+                    {itemCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          )}
 
           <Button
             variant="ghost"
