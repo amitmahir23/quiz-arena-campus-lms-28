@@ -18,19 +18,47 @@ export const CartPage = () => {
 
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      
-      if (error) throw error;
-      
-      if (data?.url) {
-        // Open Stripe checkout in new tab
-        window.open(data.url, '_blank');
+      // Check if all courses are free
+      if (total === 0) {
+        // Handle free courses directly - create enrollments
+        // Get current user ID
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Create enrollments for all free courses
+        const enrollmentData = cartItems.map(item => ({
+          student_id: user.id,
+          course_id: item.course_id
+        }));
+
+        const { error: enrollmentError } = await supabase
+          .from('enrollments')
+          .insert(enrollmentData);
+
+        if (enrollmentError) throw enrollmentError;
+
+        // Clear cart after successful enrollment
+        clearCart();
+        toast.success('Successfully enrolled in free courses!');
+        
+        // Redirect to courses page
+        window.location.href = '/courses';
       } else {
-        throw new Error('No checkout URL received');
+        // Handle paid courses through Stripe
+        const { data, error } = await supabase.functions.invoke('create-checkout');
+        
+        if (error) throw error;
+        
+        if (data?.url) {
+          // Open Stripe checkout in new tab
+          window.open(data.url, '_blank');
+        } else {
+          throw new Error('No checkout URL received');
+        }
       }
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.message || 'Failed to start checkout process');
+      toast.error(error.message || 'Failed to process checkout');
     } finally {
       setIsProcessing(false);
     }
@@ -105,7 +133,7 @@ export const CartPage = () => {
                   onClick={handleCheckout}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? 'Processing...' : `Checkout - $${total.toFixed(2)}`}
+                  {isProcessing ? 'Processing...' : total === 0 ? 'Enroll in Free Courses' : `Checkout - $${total.toFixed(2)}`}
                 </Button>
                 
                 <Button
