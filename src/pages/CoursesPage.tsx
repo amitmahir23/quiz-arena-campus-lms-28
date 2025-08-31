@@ -2,6 +2,7 @@ import { useAuth } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
 import CourseBrowser from './student/CourseBrowser';
 import InstructorCoursesPage from './instructor/InstructorCoursesPage';
+import AdminCoursesPage from './admin/AdminCoursesPage';
 
 const CoursesPage = () => {
   const { profile } = useAuth();
@@ -14,8 +15,7 @@ const CoursesPage = () => {
     case 'student':
       return <CourseBrowser />;
     case 'admin':
-      // Admins can see all courses - for now use CourseBrowser
-      return <CourseBrowser />;
+      return <AdminCoursesPage />;
     default:
       // Default to student view if no specific role
       return <CourseBrowser />;
