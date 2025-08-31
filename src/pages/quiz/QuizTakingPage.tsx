@@ -74,7 +74,7 @@ const QuizTakingPage = () => {
   const handleQuizComplete = () => {
     toast.success('Quiz completed successfully!');
     // Navigate back to the course
-    navigate(`/courses/${quiz?.courses.id}`);
+    // navigate(`/courses/${quiz?.courses.id}`);
   };
 
   const handleGoBack = () => {
