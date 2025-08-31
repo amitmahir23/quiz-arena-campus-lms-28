@@ -49,7 +49,7 @@
     --background: 240 6% 10%;
     --foreground: 210 40% 98%;
 
-    --card: 197 37% 96%;
+    --card: 240 4% 16%;
     --card-foreground: 210 40% 98%;
 
     --popover: 240 4% 16%;
@@ -130,6 +130,14 @@
     @apply hover:bg-gray-800;
   }
 
+  .dark .edu-card {
+    @apply bg-card border-gray-700;
+  }
+
+  .dark .quiz-card {
+    @apply bg-card border-gray-700 hover:border-primary;
+  }
+
   .dark .badge-primary {
     @apply bg-purple-800 text-purple-100;
   }
@@ -151,6 +159,31 @@
   }
 
   .dark .dropdown-improved {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  /* Chart specific dark mode fixes */
+  .dark .recharts-text {
+    fill: hsl(var(--foreground)) !important;
+  }
+
+  /* Button dark mode improvements */
+  .dark button[data-state="open"] {
+    @apply bg-gray-700;
+  }
+
+  /* Table dark mode improvements */
+  .dark th {
+    @apply border-gray-700 bg-gray-800;
+  }
+
+  .dark td {
+    @apply border-gray-700;
+  }
+
+  /* Dropdown and select dark mode improvements */
+  .dark [role="combobox"],
+  .dark [role="listbox"] {
     @apply bg-gray-800 border-gray-700;
   }
 }
