@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FileText, MessageSquare, Lock, FolderOpen, BookOpen } from 'lucide-react';
+import { FileText, MessageSquare, Lock, FolderOpen, BookOpen, Award } from 'lucide-react';
 import ChapterMaterialViewer from './ChapterMaterialViewer';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -18,9 +18,15 @@ import ContentHub from './ContentHub';
 import CourseForum from './CourseForum';
 import CourseQuizzesTab from './CourseQuizzesTab';
 import { useCompletedMaterials } from '@/hooks/useCompletedMaterials';
+import { useCourseCompletion } from '@/hooks/useCourseCompletion';
+import CertificateModal from './CertificateModal';
+import { useAuth } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
 
 const StudentCourseView = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const { user, profile } = useAuth();
+  const [showCertificate, setShowCertificate] = useState(false);
   
   // Fetch course and its chapters
   const { data: courseData, isLoading: isLoadingCourse } = useQuery({
@@ -53,6 +59,7 @@ const StudentCourseView = () => {
   });
 
   const { completedMaterials, markAsCompleted } = useCompletedMaterials(courseId);
+  const { data: courseCompletion } = useCourseCompletion(courseId || '');
 
   // Helper function to check if a material is accessible
   const isMaterialAccessible = (chapterIndex: number, materialIndex: number, chapterMaterials: any[]) => {
@@ -80,6 +87,27 @@ const StudentCourseView = () => {
   return (
     <div className="container py-10">
       <CourseHeader course={courseData} />
+      
+      {courseCompletion?.isCompleted && (
+        <Card className="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Award className="h-8 w-8 text-yellow-600" />
+              <h3 className="text-2xl font-bold text-yellow-800">Congratulations!</h3>
+            </div>
+            <p className="text-yellow-700 mb-4">
+              You have successfully completed this course. Your certificate is ready!
+            </p>
+            <Button 
+              onClick={() => setShowCertificate(true)}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            >
+              <Award className="h-4 w-4 mr-2" />
+              View Certificate
+            </Button>
+          </CardContent>
+        </Card>
+      )}
       
       <Tabs defaultValue="content" className="mt-6">
         <TabsList>
@@ -199,6 +227,14 @@ const StudentCourseView = () => {
           <CourseForum courseId={courseId || ''} />
         </TabsContent>
       </Tabs>
+
+      {/* Certificate Modal */}
+      <CertificateModal
+        isOpen={showCertificate}
+        onClose={() => setShowCertificate(false)}
+        studentName={profile?.full_name || user?.email || 'Student'}
+        courseName={courseData?.title || 'Course'}
+      />
     </div>
   );
 };
