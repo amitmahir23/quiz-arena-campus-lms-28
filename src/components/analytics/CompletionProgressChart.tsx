@@ -1,11 +1,10 @@
 import { ResponsiveLine } from "@nivo/line"
-import { useTheme } from "next-themes" // Import theme hook if using next-themes
+import { useTheme } from "@/hooks/useTheme" // Import our custom theme hook
 
 const CompletionProgressChart = () => {
-  // Get current theme to adjust chart colors if using next-themes
-  // If not using next-themes, you can remove this and rely on CSS variables
-  const { resolvedTheme } = useTheme?.() || { resolvedTheme: 'light' }
-  const isDark = resolvedTheme === 'dark'
+  // Get current theme to adjust chart colors
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   // Sample data - in a real app, this would come from your API/database
   const data = [

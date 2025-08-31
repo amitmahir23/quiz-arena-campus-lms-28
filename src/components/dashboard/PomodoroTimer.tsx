@@ -45,7 +45,7 @@ const PomodoroTimer = () => {
   const seconds = timeLeft % 60
 
   return (
-    <Card className="bg-purple-50 dark:bg-purple-600 text-black dark:text-white transition-colors h-[250px]">
+    <Card className="bg-purple-50 dark:bg-purple-900/20 text-foreground transition-colors h-[250px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Timer className="h-5 w-5" />
@@ -56,20 +56,20 @@ const PomodoroTimer = () => {
         <div className="text-4xl font-bold mb-4">
           {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
         </div>
-        <div className="text-sm text-muted-foreground text-black mb-4">
+        <div className="text-sm text-muted-foreground mb-4">
           {isBreak ? 'Break Time' : 'Focus Time'}
         </div>
         <div className="flex justify-center gap-2">
           <Button
             onClick={toggleTimer}
-            className="bg-purple-500 hover:bg-purple-600 text-white dark:bg-purple-400 dark:hover:bg-purple-500"
+            className="bg-purple-500 hover:bg-purple-600 text-primary-foreground dark:bg-purple-600 dark:hover:bg-purple-500"
           >
             {isActive ? 'Pause' : 'Start'}
           </Button>
           <Button
             variant="outline"
             onClick={resetTimer}
-            className="dark:border-white dark:text-white dark:hover:bg-white/10"
+            className="dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-500/10"
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
