@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/auth/AuthPage";
 import CourseManagement from "./pages/instructor/CourseManagement";
 import CourseView from "./pages/student/CourseView";
-import CourseBrowser from "./pages/student/CourseBrowser";
+import CoursesPage from "./pages/CoursesPage";
 import CourseQuizzes from "./pages/instructor/CourseQuizzes";
 import QuizBattles from "./pages/quiz/QuizBattles";
 import QuizBattlePage from "./pages/quiz/QuizBattlePage";
@@ -42,7 +42,7 @@ const App = () => {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-              <Route path="/courses" element={<ProtectedRoute><CourseBrowser /></ProtectedRoute>} />
+              <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
               <Route path="/courses/:courseId" element={<ProtectedRoute><CourseView /></ProtectedRoute>} />
               <Route path="/courses/:courseId/manage" element={<ProtectedRoute><CourseManagement /></ProtectedRoute>} />
               <Route path="/courses/:courseId/quizzes" element={<ProtectedRoute><CourseQuizzes /></ProtectedRoute>} />
