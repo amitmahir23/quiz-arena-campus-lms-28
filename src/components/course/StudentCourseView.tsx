@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FileText, FileVideo, File, MessageSquare, Lock } from 'lucide-react';
+import { FileText, FileVideo, File, MessageSquare, Lock, FolderOpen } from 'lucide-react';
 import ChapterMaterialViewer from './ChapterMaterialViewer';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import CourseHeader from './CourseHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DiscussionsTab from './DiscussionsTab';
+import ContentHub from './ContentHub';
 import { useCompletedMaterials } from '@/hooks/useCompletedMaterials';
 
 const StudentCourseView = () => {
@@ -84,6 +85,10 @@ const StudentCourseView = () => {
           <TabsTrigger value="content" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Content
+          </TabsTrigger>
+          <TabsTrigger value="content-hub" className="flex items-center gap-2">
+            <FolderOpen className="h-4 w-4" />
+            Content Hub
           </TabsTrigger>
           <TabsTrigger value="discussions" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
@@ -175,6 +180,10 @@ const StudentCourseView = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="content-hub">
+          <ContentHub courseId={courseId || ''} />
         </TabsContent>
 
         <TabsContent value="discussions">
