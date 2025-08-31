@@ -16,6 +16,8 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseQuizzes from "./pages/instructor/CourseQuizzes";
 import QuizBattles from "./pages/quiz/QuizBattles";
 import QuizBattlePage from "./pages/quiz/QuizBattlePage";
+import Cart from "./pages/Cart";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import ContentHub from "./pages/ContentHub";
@@ -46,6 +48,8 @@ const App = () => {
               <Route path="/courses/:courseId" element={<ProtectedRoute><CourseView /></ProtectedRoute>} />
               <Route path="/courses/:courseId/manage" element={<ProtectedRoute><CourseManagement /></ProtectedRoute>} />
               <Route path="/courses/:courseId/quizzes" element={<ProtectedRoute><CourseQuizzes /></ProtectedRoute>} />
+              <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+              <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
               <Route path="/quizzes" element={<ProtectedRoute><QuizBattles /></ProtectedRoute>} />
               <Route path="/quiz-battles" element={<QuizBattles />} />
               <Route path="/quiz-battle/:roomId" element={<QuizBattlePage />} />
