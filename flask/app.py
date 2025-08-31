@@ -1,3 +1,22 @@
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+# import requests
+# import google.generativeai as genai
+# from config import SUPABASE_URL, SUPABASE_HEADERS, GEMINI_API_KEY
+# import time
+
+# # Configure Gemini with error handling
+# try:
+#     genai.configure(api_key=GEMINI_API_KEY)
+#     # Use gemini-1.5-flash instead of pro for better rate limits
+#     model = genai.GenerativeModel("gemini-1.5-flash")
+# except Exception as e:
+#     print(f"Error configuring Gemini: {e}")
+#     model = None
+
+# app = Flask(__name__)
+# CORS(app)
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -8,7 +27,6 @@ import time
 # Configure Gemini with error handling
 try:
     genai.configure(api_key=GEMINI_API_KEY)
-    # Use gemini-1.5-flash instead of pro for better rate limits
     model = genai.GenerativeModel("gemini-1.5-flash")
 except Exception as e:
     print(f"Error configuring Gemini: {e}")
@@ -16,7 +34,6 @@ except Exception as e:
 
 app = Flask(__name__)
 CORS(app)
-
 
 # Add home route to fix 404 error
 @app.route("/")
@@ -274,8 +291,19 @@ def health():
     })
 
 
+# if __name__ == "__main__":
+#     print("🚀 Starting Student LMS API...")
+#     print("🌐 Visit http://127.0.0.1:5000 to see available endpoints")
+#     print("🔧 Use POST requests to interact with the API")
+#     app.run(debug=True)
+
 if __name__ == "__main__":
+    # Get port from environment variable (Render provides this)
+    port = int(os.environ.get("PORT", 5000))
+    
     print("🚀 Starting Student LMS API...")
-    print("🌐 Visit http://127.0.0.1:5000 to see available endpoints")
+    print(f"🌐 API will be available on port {port}")
     print("🔧 Use POST requests to interact with the API")
-    app.run(debug=True)
+    
+    # Bind to 0.0.0.0 so Render can access it
+    app.run(host="0.0.0.0", port=port, debug=False)
