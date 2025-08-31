@@ -30,6 +30,13 @@ const PaymentSuccess = () => {
 
       setProcessed(true);
       toast.success("Payment processed successfully! You now have access to your courses.");
+      
+      // Auto-redirect to first purchased course after 2 seconds
+      if (data?.course_ids && data.course_ids.length > 0) {
+        setTimeout(() => {
+          window.location.href = `/courses/${data.course_ids[0]}`;
+        }, 2000);
+      }
     } catch (error: any) {
       console.error("Payment processing error:", error);
       toast.error("There was an issue processing your payment. Please contact support.");

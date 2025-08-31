@@ -126,7 +126,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       message: "Payment processed successfully",
-      order_id: order.id
+      order_id: order.id,
+      course_ids: courseIds
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
