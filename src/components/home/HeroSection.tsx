@@ -14,38 +14,38 @@ const HeroSection = () => {
       
       {/* Content container with pointer-events-none to allow clicks to reach the boxes */}
       <div className="container relative z-10 mx-auto px-4 text-center text-white pointer-events-none">
-      <TypewriterEffect className="text-4xl md:text-6xl mb-8" cursorClassName="bg-blue-400"
+      <TypewriterEffect className="text-4xl md:text-6xl mb-8" cursorClassName="bg-purple-400"
         words={[
           { text: "Learn,", className: "text-white" },
           { text: "Compete,", className: "text-white" },
-          { text: "Excel", className: "text-blue-400" },
+          { text: "Excel", className: "text-purple-400" },
         ]}
       />
 
 
-        <p className="text-xl md:text-2xl font-medium text-blue-200 mb-12 max-w-3xl mx-auto">
+        <p className="text-xl md:text-2xl font-medium text-purple-200 mb-12 max-w-3xl mx-auto">
           Making education engaging, structured, and competitive.
         </p>
         
         {/* Re-enable pointer events just for the button */}
         <div className="flex justify-center mb-20 pointer-events-auto">
           <Link to="/courses">
-            <SlideArrowButton text="Ready to get Started?" primaryColor="#60a5fa" />
+            <SlideArrowButton text="Ready to get Started?" primaryColor="#8b5cf6" />
           </Link> 
         </div>
 
         
         {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-3xl mx-auto">
           <div className="flex items-center gap-3 p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all pointer-events-auto">
-            <BookOpen className="text-blue-400 h-6 w-6" />
+            <BookOpen className="text-purple-400 h-6 w-6" />
             <p className="font-medium">Structured Learning</p>
           </div>
           <div className="flex items-center gap-3 p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all pointer-events-auto">
-            <Trophy className="text-blue-400 h-6 w-6" />
+            <Trophy className="text-purple-400 h-6 w-6" />
             <p className="font-medium">Quiz Battles</p>
           </div>
           <div className="flex items-center gap-3 p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all pointer-events-auto">
-            <Users className="text-blue-400 h-6 w-6" />
+            <Users className="text-purple-400 h-6 w-6" />
             <p className="font-medium">Community Hub</p>
           </div>
         </div> */}

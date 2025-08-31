@@ -9,13 +9,13 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
   
   // Brighter, more saturated dark colors with higher contrast
   let colors = [
-    "#93c5fd", // blue-600
+    "#c4b5fd", // purple-300
     "#f9a8d4", // pink-700
     "#86efac", // green-600
     "#fde047", // yellow-600
     "#fca5a5", // red-600
     "#d8b4fe", // purple-600
-    "#93c5fd", // blue-600
+    "#c4b5fd", // purple-300
     "#a5b4fc", // indigo-600
     "#c4b5fd", // violet-600
   ];

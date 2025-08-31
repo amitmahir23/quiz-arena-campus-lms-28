@@ -124,20 +124,20 @@ const AdminDashboard = () => {
             <p className="text-muted-foreground">System overview and analytics</p>
           </div>
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-500" />
+            <Shield className="h-5 w-5 text-purple-500" />
             <span className="text-sm font-medium">Admin View</span>
           </div>
         </div>
 
         {/* Key Metrics Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-200 dark:border-blue-800">
+          <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-200 dark:border-purple-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-              <BookOpen className="h-4 w-4 text-blue-600" />
+              <BookOpen className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats?.totalCourses || 0}</div>
+              <div className="text-2xl font-bold text-purple-600">{stats?.totalCourses || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Avg {stats?.avgEnrollments || 0} enrollments per course
               </p>
@@ -308,7 +308,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
-                    className="bg-blue-500 h-2 rounded-full" 
+                    className="bg-purple-500 h-2 rounded-full" 
                     style={{ 
                       width: `${stats?.totalUsers ? (stats.totalStudents / stats.totalUsers) * 100 : 0}%` 
                     }}

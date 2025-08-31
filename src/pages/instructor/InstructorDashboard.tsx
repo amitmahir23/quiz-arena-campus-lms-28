@@ -144,12 +144,12 @@ const InstructorDashboard = () => {
 
         {/* Enhanced Stats Cards with Analytics */}
         <div className="grid gap-6 md:grid-cols-4 mb-8">
-          <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-200 dark:border-blue-800">
+          <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-200 dark:border-purple-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{courses.length}</div>
+              <div className="text-2xl font-bold text-purple-600">{courses.length}</div>
             </CardContent>
           </Card>
           

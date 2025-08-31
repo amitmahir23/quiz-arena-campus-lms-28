@@ -95,7 +95,7 @@ const TodoList = () => {
   };
 
   return (
-    <Card className="bg-blue-100 dark:bg-blue-600 text-black dark:text-white transition-colors">
+    <Card className="bg-purple-50 dark:bg-purple-600 text-black dark:text-white transition-colors">
 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -111,13 +111,13 @@ const TodoList = () => {
             placeholder="Add a new study goal..."
             className="flex-1"
           />
-          <Button type="submit" className="dark:bg-blue-400">Add</Button>
+          <Button type="submit" className="dark:bg-purple-400">Add</Button>
         </form>
         <div className="space-y-2">
           {goals.map((goal) => (
             <div
               key={goal.id}
-              className="flex items-center gap-2 p-2 rounded-lg bg-blue-400 text-black hover:bg-blue-200 group"
+              className="flex items-center gap-2 p-2 rounded-lg bg-purple-100 text-black hover:bg-purple-50 group"
             >
               <Checkbox
                 checked={goal.completed}
