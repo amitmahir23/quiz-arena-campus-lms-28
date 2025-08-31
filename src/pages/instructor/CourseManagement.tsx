@@ -120,7 +120,7 @@ const CourseManagement = () => {
             </TabsTrigger>
             <TabsTrigger value="content-hub" className="flex items-center gap-2">
               <FolderOpen className="h-4 w-4" />
-              Materials
+              Content Hub
             </TabsTrigger>
             <TabsTrigger value="students" className="flex items-center gap-2">
               <Users className="h-4 w-4" />

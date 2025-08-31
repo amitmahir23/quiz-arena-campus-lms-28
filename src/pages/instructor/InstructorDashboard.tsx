@@ -128,16 +128,16 @@ const InstructorDashboard = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setShowCreateForm(true)}>
+            {/* <Button onClick={() => setShowCreateForm(true)}>
               Create Course
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               variant="outline"
               onClick={() => navigate("/instructor/course-quizzes")}
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Manage Quizzes
-            </Button>
+            </Button> */}
             <CreateMeetingButton />
           </div>
         </div>

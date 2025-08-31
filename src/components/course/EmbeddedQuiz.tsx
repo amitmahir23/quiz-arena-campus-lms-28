@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
@@ -40,10 +40,30 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchQuizData();
   }, [quizId]);
+
+  useEffect(() => {
+    if (quizStarted && timeRemaining > 0 && !showResults) {
+      timerRef.current = setTimeout(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (quizStarted && timeRemaining === 0 && !showResults) {
+      // Time's up - auto submit quiz
+      handleSubmitQuiz(true);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [timeRemaining, quizStarted, showResults]);
 
   const fetchQuizData = async () => {
     try {
@@ -56,6 +76,7 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
 
       if (quizError) throw quizError;
       setQuiz(quizData);
+      setTimeRemaining(quizData.time_limit * 60); // Convert minutes to seconds
 
       // Fetch quiz questions
       const { data: questionsData, error: questionsError } = await supabase
@@ -72,6 +93,26 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
     } finally {
       setLoading(false);
     }
+  };
+
+  const startQuiz = () => {
+    setQuizStarted(true);
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const getTimerColor = () => {
+    if (!quiz) return 'text-muted-foreground';
+    const totalTime = quiz.time_limit * 60;
+    const timePercentage = (timeRemaining / totalTime) * 100;
+    
+    if (timePercentage <= 10) return 'text-red-600';
+    if (timePercentage <= 25) return 'text-orange-600';
+    return 'text-muted-foreground';
   };
 
   const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
@@ -93,13 +134,19 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
     }
   };
 
-  const handleSubmitQuiz = async () => {
-    if (Object.keys(selectedAnswers).length !== questions.length) {
+  const handleSubmitQuiz = async (timeUp = false) => {
+    if (!timeUp && Object.keys(selectedAnswers).length !== questions.length) {
       toast.error('Please answer all questions before submitting');
       return;
     }
 
     setSubmitting(true);
+    
+    // Clear timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
     try {
       // Calculate score
       let correctAnswers = 0;
@@ -116,13 +163,16 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
       setScore(finalScore);
       setShowResults(true);
 
+      // Calculate time taken
+      const timeTaken = quiz ? (quiz.time_limit * 60) - timeRemaining : 0;
+
       // Save quiz result to database
       await supabase
         .from('quiz_results')
         .insert({
           quiz_category: quiz?.title || 'embedded-quiz',
           score: finalScore,
-          time_taken: 0, // Could track time if needed
+          time_taken: timeTaken,
           user_id: user?.id
         });
 
@@ -132,6 +182,10 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
         toast.success(`Quiz completed! Score: ${finalScore}/${totalQuestions} (${percentage}%)`);
       } else if (percentage < 70) {
         toast.error(`Quiz failed. Score: ${finalScore}/${totalQuestions} (${percentage}%). Need 70% to pass.`);
+      }
+
+      if (timeUp) {
+        toast.warning('Time expired! Quiz submitted automatically.');
       }
     } catch (error: any) {
       console.error('Error submitting quiz:', error);
@@ -146,6 +200,11 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
     setSelectedAnswers({});
     setShowResults(false);
     setScore(0);
+    setQuizStarted(false);
+    setTimeRemaining(quiz ? quiz.time_limit * 60 : 0);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
   };
 
   if (loading) {
@@ -189,6 +248,42 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
             onClick={resetQuiz}
           >
             Retake Quiz
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Quiz start screen
+  if (!quizStarted) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{quiz.title}</CardTitle>
+          {quiz.description && (
+            <p className="text-muted-foreground">{quiz.description}</p>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Questions:</span>
+              <span>{questions.length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="font-medium">Time limit:</span>
+              <span>{quiz.time_limit} minutes</span>
+            </div>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-md">
+            <p className="text-sm text-blue-800">
+              <strong>Instructions:</strong> Answer all questions within the time limit. 
+              You need 70% or higher to pass. Once started, the timer cannot be paused.
+            </p>
+          </div>
+          <Button onClick={startQuiz} className="w-full">
+            Start Quiz
           </Button>
         </CardContent>
       </Card>
@@ -265,14 +360,26 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-between">
-          <span>{quiz.title}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </span>
-        </CardTitle>
-        <Progress value={progress} className="mt-2" />
+      <CardHeader className="space-y-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl">{quiz.title}</CardTitle>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Clock className="h-4 w-4" />
+            <span className={getTimerColor()}>
+              {formatTime(timeRemaining)}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+          <span>{Math.round(progress)}% complete</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-[#8064b4] h-2 rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
@@ -304,7 +411,7 @@ const EmbeddedQuiz = ({ quizId, onComplete, isCompleted }: EmbeddedQuizProps) =>
           <div className="flex gap-2">
             {currentQuestionIndex === questions.length - 1 ? (
               <Button
-                onClick={handleSubmitQuiz}
+                onClick={() => handleSubmitQuiz(false)}
                 disabled={submitting || selectedAnswers[currentQuestionIndex] === undefined}
               >
                 {submitting ? 'Submitting...' : 'Submit Quiz'}

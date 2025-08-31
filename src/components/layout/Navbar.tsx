@@ -101,7 +101,7 @@ const Navbar = () => {
             </div>
           </form>
 
-          {user && <CreateMeetingButton />}
+          {/* {user && <CreateMeetingButton />} */}
 
           {user && profile?.role === 'student' && (
             <Link to="/cart" className="relative">
