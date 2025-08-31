@@ -126,10 +126,7 @@ const ActivityHeatmap = () => {
           borderWidth={1}
           enableLabels={true}
           labelTextColor="#ffffff"
-          cellHoverOthersOpacity={0.25}
           hoverTarget="cell"
-          cellOpacity={1}
-          cellBorderWidth={1}
           legends={[
             {
               anchor: "bottom",
@@ -210,10 +207,10 @@ const ActivityHeatmap = () => {
               },
             }
           }}
-          cellComponent={({ cell, borderWidth, enableLabels, textColor, onHover, onLeave, onClick }) => {
-            const { data, x, y, width, height, color } = cell;
+          cellComponent={({ cell, borderWidth, enableLabels }) => {
+            const { data, x, y, width, height, color, value } = cell;
             return (
-              <g transform={`translate(${x}, ${y})`} onClick={onClick} onMouseEnter={onHover} onMouseLeave={onLeave}>
+              <g transform={`translate(${x}, ${y})`}>
                 <rect
                   width={width}
                   height={height}
@@ -228,13 +225,13 @@ const ActivityHeatmap = () => {
                     textAnchor="middle"
                     dominantBaseline="central"
                     style={{
-                      fill: Number(data.formattedValue) > 50 ? "#FFFFFF" : "#334155",
+                      fill: Number(value) > 50 ? "#FFFFFF" : "#334155",
                       fontSize: "10px",
                       fontWeight: "bold",
                       pointerEvents: "none",
                     }}
                   >
-                    {data.formattedValue}
+                    {value}
                   </text>
                 )}
               </g>

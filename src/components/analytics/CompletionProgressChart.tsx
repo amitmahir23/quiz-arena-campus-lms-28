@@ -107,9 +107,9 @@ const CompletionProgressChart = () => {
           }
         ]}
         theme={{
-          // Base text styling - white in dark mode
-          textColor: isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 0.85)',
-          fontSize: 12,
+          text: {
+            fontSize: 12,
+          },
           
           // Axis styling - pure white in dark mode
           axis: {
@@ -219,7 +219,7 @@ const CompletionProgressChart = () => {
               }}
             >
               <div style={{ fontWeight: 'bold', marginBottom: '6px' }}>
-                {slice.points[0].data.x}
+                {String(slice.points[0].data.x)}
               </div>
               {slice.points.map(point => (
                 <div
@@ -241,7 +241,7 @@ const CompletionProgressChart = () => {
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <span>{point.serieId}:</span>
-                    <span style={{ fontWeight: 600, marginLeft: 10 }}>{point.data.y}</span>
+                    <span style={{ fontWeight: 600, marginLeft: 10 }}>{String(point.data.y)}</span>
                   </div>
                 </div>
               ))}
