@@ -51,8 +51,8 @@ export const CourseCard = ({ course, isPurchased = false }: CourseCardProps) => 
         </p>
         
         {isPurchased ? (
-          <Button className="w-full" disabled>
-            Already Purchased
+          <Button className="w-full" onClick={() => (window.location.href = `/courses/${course.id}`)}>
+            Go to Course
           </Button>
         ) : (
           <Button 

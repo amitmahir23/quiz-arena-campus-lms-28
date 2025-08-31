@@ -36,12 +36,25 @@ const CourseBrowser = () => {
   }, [user]);
 
   useEffect(() => {
-    const filtered = courses.filter(course =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.preview_description?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredCourses(filtered);
-  }, [searchTerm, courses]);
+    if (!user?.id) return;
+    const channel = supabase
+      .channel('course_purchases_changes')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'course_purchases', filter: `user_id=eq.${user.id}` },
+        (payload: any) => {
+          const newCourseId = payload?.new?.course_id;
+          if (newCourseId) {
+            setPurchasedCourseIds((prev) => (prev.includes(newCourseId) ? prev : [...prev, newCourseId]));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const fetchCourses = async () => {
     try {

@@ -64,6 +64,7 @@ serve(async (req) => {
     if (orderItemsError || !orderItems) {
       throw new Error("Order items not found");
     }
+    const courseIds = orderItems.map((item) => item.course_id);
     logStep("Order items retrieved", { itemCount: orderItems.length });
 
     // Update order status
