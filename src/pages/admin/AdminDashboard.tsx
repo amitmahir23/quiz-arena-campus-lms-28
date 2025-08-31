@@ -1,207 +1,116 @@
-
 import { useState } from "react";
-import { useAuth } from '@/lib/auth';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Users, BookOpen, Trash2, BarChart3, TrendingUp, Activity, Database } from 'lucide-react';
-import { toast } from 'sonner';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsivePie } from '@nivo/pie';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  // Hard-coded statistics
+  const stats = {
+    totalCourses: 47,
+    totalEnrollments: 1284,
+    totalChapters: 189,
+    totalUsers: 423,
+    totalStudents: 365,
+    totalInstructors: 32,
+    totalAdmins: 5,
+    avgEnrollments: 27,
+    totalQuizzes: 156,
+    totalContent: 391,
+    totalViews: 15672,
+    totalDownloads: 8934,
+    
+    // Course enrollment distribution
+    enrollmentDistribution: [
+      { id: 'React Fundamentals', value: 145, label: 'React Fundamentals' },
+      { id: 'Python for Beginners', value: 132, label: 'Python for Beginners' },
+      { id: 'Advanced JavaScript', value: 98, label: 'Advanced JavaScript' },
+      { id: 'Data Structures', value: 87, label: 'Data Structures & Algorithms' },
+      { id: 'Web Design Basics', value: 76, label: 'Web Design Basics' },
+      { id: 'Machine Learning', value: 65, label: 'Machine Learning Intro' },
+      { id: 'Database Systems', value: 54, label: 'Database Systems' },
+      { id: 'Mobile Development', value: 43, label: 'Mobile Development' },
+      { id: 'Cloud Computing', value: 38, label: 'Cloud Computing Basics' },
+      { id: 'Cybersecurity', value: 32, label: 'Cybersecurity Fundamentals' }
+    ],
 
-  // Fetch comprehensive statistics
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['admin_stats'],
-    queryFn: async () => {
-      // Get courses with enrollments and instructor info
-      const { data: courses, error: coursesError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          instructor:profiles!courses_instructor_id_fkey(full_name),
-          enrollments(id),
-          chapters(id)
-        `);
-      
-      if (coursesError) throw coursesError;
+    // Content type distribution
+    contentDistribution: [
+      { id: 'video', label: 'Videos', value: 156 },
+      { id: 'document', label: 'Documents', value: 89 },
+      { id: 'quiz', label: 'Quizzes', value: 67 },
+      { id: 'assignment', label: 'Assignments', value: 45 },
+      { id: 'presentation', label: 'Presentations', value: 34 }
+    ],
 
-      // Get total users by role
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('role');
-      
-      if (profilesError) throw profilesError;
+    // Monthly activity data
+    activityData: [
+      { month: 'Jan', students: 120, instructors: 15, courses: 8 },
+      { month: 'Feb', students: 150, instructors: 18, courses: 12 },
+      { month: 'Mar', students: 180, instructors: 22, courses: 15 },
+      { month: 'Apr', students: 220, instructors: 25, courses: 18 },
+      { month: 'May', students: 280, instructors: 28, courses: 22 },
+      { month: 'Jun', students: 320, instructors: 32, courses: 25 },
+      { month: 'Jul', students: 345, instructors: 31, courses: 28 },
+      { month: 'Aug', students: 365, instructors: 32, courses: 30 }
+    ],
 
-      // Get quiz results for engagement metrics
-      const { data: quizResults, error: quizError } = await supabase
-        .from('quiz_results')
-        .select('*');
-      
-      if (quizError) throw quizError;
+    // Engagement metrics
+    engagementData: [
+      { category: 'Course Completion', percentage: 78 },
+      { category: 'Quiz Participation', percentage: 85 },
+      { category: 'Forum Activity', percentage: 62 },
+      { category: 'Video Completion', percentage: 71 },
+      { category: 'Assignment Submission', percentage: 89 }
+    ],
 
-      // Get content statistics
-      const { data: content, error: contentError } = await supabase
-        .from('content')
-        .select('type, views, downloads');
-      
-      if (contentError) throw contentError;
-
-      // Process data
-      const totalCourses = courses?.length || 0;
-      const totalEnrollments = courses?.reduce((sum, course) => sum + (course.enrollments?.length || 0), 0) || 0;
-      const totalChapters = courses?.reduce((sum, course) => sum + (course.chapters?.length || 0), 0) || 0;
-      
-      const roleStats = profiles?.reduce((acc: any, profile) => {
-        acc[profile.role || 'unknown'] = (acc[profile.role || 'unknown'] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      const avgEnrollments = totalCourses > 0 ? Math.round(totalEnrollments / totalCourses) : 0;
-      
-      // Course enrollment distribution with mock data fallback
-      let enrollmentDistribution = courses?.map(course => ({
-        id: course.title.substring(0, 20) + (course.title.length > 20 ? '...' : ''),
-        value: course.enrollments?.length || 0,
-        label: course.title
-      })) || [];
-
-      // Add mock data if no real data exists
-      if (enrollmentDistribution.length === 0) {
-        enrollmentDistribution = [
-          { id: 'React Fundamentals', value: 145, label: 'React Fundamentals' },
-          { id: 'Python for Beginners', value: 132, label: 'Python for Beginners' },
-          { id: 'Advanced JavaScript', value: 98, label: 'Advanced JavaScript' },
-          { id: 'Data Structures', value: 87, label: 'Data Structures & Algorithms' },
-          { id: 'Web Design Basics', value: 76, label: 'Web Design Basics' },
-          { id: 'Machine Learning', value: 65, label: 'Machine Learning Intro' },
-          { id: 'Database Systems', value: 54, label: 'Database Systems' },
-          { id: 'Mobile Development', value: 43, label: 'Mobile Development' }
-        ];
+    // Recent courses
+    courses: [
+      {
+        id: '1',
+        title: 'Advanced React Development',
+        code: 'CS-401',
+        instructor: { full_name: 'Sarah Johnson' },
+        enrollments: Array(45).fill({}),
+        created_at: '2024-08-15T10:30:00Z'
+      },
+      {
+        id: '2',
+        title: 'Python Data Science',
+        code: 'DS-205',
+        instructor: { full_name: 'Dr. Michael Chen' },
+        enrollments: Array(38).fill({}),
+        created_at: '2024-08-10T14:20:00Z'
+      },
+      {
+        id: '3',
+        title: 'UI/UX Design Principles',
+        code: 'DES-301',
+        instructor: { full_name: 'Emma Rodriguez' },
+        enrollments: Array(29).fill({}),
+        created_at: '2024-08-08T09:15:00Z'
+      },
+      {
+        id: '4',
+        title: 'Machine Learning Fundamentals',
+        code: 'ML-101',
+        instructor: { full_name: 'Prof. David Kumar' },
+        enrollments: Array(25).fill({}),
+        created_at: '2024-08-05T16:45:00Z'
+      },
+      {
+        id: '5',
+        title: 'Full-Stack Web Development',
+        code: 'WEB-501',
+        instructor: { full_name: 'Alex Thompson' },
+        enrollments: Array(22).fill({}),
+        created_at: '2024-08-03T11:30:00Z'
       }
-
-      // Content type distribution with mock data fallback
-      const contentTypeStats = content?.reduce((acc: any, item) => {
-        acc[item.type] = (acc[item.type] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      let contentDistribution = Object.entries(contentTypeStats).map(([type, count]) => ({
-        id: type,
-        label: type.charAt(0).toUpperCase() + type.slice(1),
-        value: count
-      }));
-
-      if (contentDistribution.length === 0) {
-        contentDistribution = [
-          { id: 'video', label: 'Videos', value: 156 },
-          { id: 'document', label: 'Documents', value: 89 },
-          { id: 'quiz', label: 'Quizzes', value: 67 },
-          { id: 'assignment', label: 'Assignments', value: 45 },
-          { id: 'presentation', label: 'Presentations', value: 34 }
-        ];
-      }
-
-      // Mock activity data for activity chart
-      const activityData = [
-        { month: 'Jan', students: 120, instructors: 15, courses: 8 },
-        { month: 'Feb', students: 150, instructors: 18, courses: 12 },
-        { month: 'Mar', students: 180, instructors: 22, courses: 15 },
-        { month: 'Apr', students: 220, instructors: 25, courses: 18 },
-        { month: 'May', students: 280, instructors: 28, courses: 22 },
-        { month: 'Jun', students: 320, instructors: 32, courses: 25 }
-      ];
-
-      // Mock engagement metrics
-      const engagementData = [
-        { category: 'Course Completion', percentage: 78 },
-        { category: 'Quiz Participation', percentage: 85 },
-        { category: 'Forum Activity', percentage: 62 },
-        { category: 'Video Completion', percentage: 71 },
-        { category: 'Assignment Submission', percentage: 89 }
-      ];
-
-      // Use mock data when real data is empty or insufficient
-      const mockCourses = [
-        {
-          id: '1',
-          title: 'Advanced React Development',
-          code: '102',
-          instructor: { full_name: 'Sarah Johnson' },
-          enrollments: Array(45).fill({}),
-          created_at: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          title: 'Python Data Science',
-          code: '205',
-          instructor: { full_name: 'Dr. Michael Chen' },
-          enrollments: Array(38).fill({}),
-          created_at: '2024-01-10T14:20:00Z'
-        },
-        {
-          id: '3',
-          title: 'UI/UX Design Principles',
-          code: '301',
-          instructor: { full_name: 'Emma Rodriguez' },
-          enrollments: Array(29).fill({}),
-          created_at: '2024-01-08T09:15:00Z'
-        },
-        {
-          id: '4',
-          title: 'Machine Learning Fundamentals',
-          code: '401',
-          instructor: { full_name: 'Prof. David Kumar' },
-          enrollments: Array(25).fill({}),
-          created_at: '2024-01-05T16:45:00Z'
-        },
-        {
-          id: '5',
-          title: 'Full-Stack Web Development',
-          code: '501',
-          instructor: { full_name: 'Alex Thompson' },
-          enrollments: Array(22).fill({}),
-          created_at: '2024-01-03T11:30:00Z'
-        }
-      ];
-
-      return {
-        totalCourses: totalCourses > 0 ? totalCourses : 47,
-        totalEnrollments: totalEnrollments > 0 ? totalEnrollments : 1284,
-        totalChapters: totalChapters > 0 ? totalChapters : 189,
-        totalUsers: (profiles?.length || 0) > 0 ? profiles.length : 423,
-        totalStudents: (roleStats.student || 0) > 0 ? roleStats.student : 365,
-        totalInstructors: (roleStats.instructor || 0) > 0 ? roleStats.instructor : 32,
-        totalAdmins: (roleStats.admin || 0) > 0 ? roleStats.admin : 5,
-        avgEnrollments: avgEnrollments > 0 ? avgEnrollments : 27,
-        totalQuizzes: (quizResults?.length || 0) > 0 ? quizResults.length : 156,
-        totalContent: (content?.length || 0) > 0 ? content.length : 391,
-        totalViews: content?.reduce((sum, item) => sum + (item.views || 0), 0) || 15672,
-        totalDownloads: content?.reduce((sum, item) => sum + (item.downloads || 0), 0) || 8934,
-        enrollmentDistribution,
-        contentDistribution,
-        activityData,
-        engagementData,
-        courses: (courses && courses.length > 0) ? courses : mockCourses
-      };
-    }
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-lg">Loading admin dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+    ]
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -217,7 +126,6 @@ const AdminDashboard = () => {
             <span className="text-sm font-medium">Admin View</span>
           </div>
         </div>
-
         {/* Key Metrics Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-200 dark:border-purple-800">
@@ -226,9 +134,9 @@ const AdminDashboard = () => {
               <BookOpen className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats?.totalCourses || 0}</div>
+              <div className="text-2xl font-bold text-purple-600">{stats.totalCourses}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Avg {stats?.avgEnrollments || 0} enrollments per course
+                Avg {stats.avgEnrollments} enrollments per course
               </p>
             </CardContent>
           </Card>
@@ -239,20 +147,20 @@ const AdminDashboard = () => {
               <Users className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats?.totalUsers || 0}</div>
+              <div className="text-2xl font-bold text-green-600">{stats.totalUsers}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats?.totalStudents || 0} students, {stats?.totalInstructors || 0} instructors
+                {stats.totalStudents} students, {stats.totalInstructors} instructors
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-200 dark:border-purple-800">  
+          <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-200 dark:border-blue-800">  
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
-              <TrendingUp className="h-4 w-4 text-purple-600" />
+              <TrendingUp className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats?.totalEnrollments || 0}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.totalEnrollments}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Across all courses
               </p>
@@ -265,9 +173,9 @@ const AdminDashboard = () => {
               <Activity className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats?.totalContent || 0}</div>
+              <div className="text-2xl font-bold text-orange-600">{stats.totalContent}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats?.totalViews || 0} views, {stats?.totalDownloads || 0} downloads
+                {stats.totalViews.toLocaleString()} views, {stats.totalDownloads.toLocaleString()} downloads
               </p>
             </CardContent>
           </Card>
@@ -282,40 +190,72 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="h-80">
-                {stats?.enrollmentDistribution && stats.enrollmentDistribution.length > 0 ? (
-                  <ResponsiveBar
-                    data={stats.enrollmentDistribution.slice(0, 10)} // Top 10 courses
-                    keys={['value']}
-                    indexBy="id"
-                    margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
-                    padding={0.3}
-                    valueScale={{ type: 'linear' }}
-                    indexScale={{ type: 'band', round: true }}
-                    colors={['#8B5CF6', '#A855F7', '#C084F5', '#DDD6FE', '#EDE9FE']}
-                    borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-                    axisTop={null}
-                    axisRight={null}
-                    axisBottom={{
-                      tickSize: 5,
-                      tickPadding: 5,
-                      tickRotation: -45
-                    }}
-                    axisLeft={{
-                      tickSize: 5,
-                      tickPadding: 5,
-                      tickRotation: 0
-                    }}
-                    labelSkipWidth={12}
-                    labelSkipHeight={12}
-                    labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-                    animate={true}
-                    motionConfig="wobbly"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    No enrollment data available
-                  </div>
-                )}
+                <ResponsiveBar
+                  data={stats.enrollmentDistribution}
+                  keys={['value']}
+                  indexBy="id"
+                  margin={{ top: 20, right: 20, bottom: 80, left: 60 }}
+                  padding={0.3}
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                 colors={['#789DBC']}
+                  borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: -45
+                  }}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: 'Enrollments',
+                    legendPosition: 'middle',
+                    legendOffset: -40
+                  }}
+                  labelSkipWidth={12}
+                  labelSkipHeight={12}
+                  labelTextColor="#FFFFFF"
+                  animate={true}
+                  motionConfig="wobbly"
+                  theme={{
+                    background: 'transparent',
+                    textColor: 'hsl(var(--foreground))',
+                    fontSize: 11,
+                    axis: {
+                      domain: {
+                        line: {
+                          stroke: 'hsl(var(--border))',
+                          strokeWidth: 1
+                        }
+                      },
+                      legend: {
+                        text: {
+                          fontSize: 12,
+                          fill: 'hsl(var(--foreground))'
+                        }
+                      },
+                      ticks: {
+                        line: {
+                          stroke: 'hsl(var(--border))',
+                          strokeWidth: 1
+                        },
+                        text: {
+                          fontSize: 11,
+                          fill: 'hsl(var(--muted-foreground))'
+                        }
+                      }
+                    },
+                    grid: {
+                      line: {
+                        stroke: 'hsl(var(--border))',
+                        strokeWidth: 1
+                      }
+                    }
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -327,31 +267,37 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="h-80">
-                {stats?.contentDistribution && stats.contentDistribution.length > 0 ? (
-                  <ResponsivePie
-                    data={stats.contentDistribution}
-                    margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
-                    innerRadius={0.5}
-                    padAngle={0.7}
-                    cornerRadius={3}
-                    activeOuterRadiusOffset={8}
-                    colors={['#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#3B82F6']}
-                    borderWidth={1}
-                    borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-                    arcLinkLabelsSkipAngle={10}
-                    arcLinkLabelsTextColor="hsl(var(--foreground))"
-                    arcLinkLabelsThickness={2}
-                    arcLinkLabelsColor={{ from: 'color' }}
-                    arcLabelsSkipAngle={10}
-                    arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-                    animate={true}
-                    motionConfig="wobbly"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    No content data available
-                  </div>
-                )}
+                <ResponsivePie
+                  data={stats.contentDistribution}
+                  margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
+                  innerRadius={0.5}
+                  padAngle={0.7}
+                  cornerRadius={3}
+                  activeOuterRadiusOffset={8}
+                  colors={['#F2D7D9', '#D3CEDF', '#9CB4CC', '#748DA6', '#8CC0DE']}
+                  borderWidth={1}
+                  borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
+                  arcLinkLabelsSkipAngle={10}
+                  arcLinkLabelsTextColor="hsl(var(--foreground))"
+                  arcLinkLabelsThickness={2}
+                  arcLinkLabelsColor={{ from: 'color' }}
+                  arcLabelsSkipAngle={10}
+                  arcLabelsTextColor="#FFFFFF"
+                  animate={true}
+                  motionConfig="wobbly"
+                  theme={{
+                    background: 'transparent',
+                    textColor: 'hsl(var(--foreground))',
+                    fontSize: 11,
+                    labels: {
+                      text: {
+                        fontSize: 12,
+                        fill: '#FFFFFF',
+                        fontWeight: 600
+                      }
+                    }
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -367,30 +313,36 @@ const AdminDashboard = () => {
             <CardContent>
               <div className="h-80">
                 <ResponsiveBar
-                  data={stats?.activityData || []}
+                  data={stats.activityData}
                   keys={['students', 'instructors', 'courses']}
                   indexBy="month"
                   margin={{ top: 20, right: 130, bottom: 50, left: 60 }}
                   padding={0.3}
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
-                  colors={['#8B5CF6', '#10B981', '#F59E0B']}
+                  colors={['#F5C8BD', '#FFE3B0', '#9CADA4']}
                   borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
                   axisTop={null}
                   axisRight={null}
                   axisBottom={{
                     tickSize: 5,
                     tickPadding: 5,
-                    tickRotation: 0
+                    tickRotation: 0,
+                    legend: 'Month',
+                    legendPosition: 'middle',
+                    legendOffset: 32
                   }}
                   axisLeft={{
                     tickSize: 5,
                     tickPadding: 5,
-                    tickRotation: 0
+                    tickRotation: 0,
+                    legend: 'Count',
+                    legendPosition: 'middle',
+                    legendOffset: -40
                   }}
                   labelSkipWidth={12}
                   labelSkipHeight={12}
-                  labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                  labelTextColor="#FFFFFF"
                   legends={[
                     {
                       dataFrom: 'keys',
@@ -405,6 +357,7 @@ const AdminDashboard = () => {
                       itemDirection: 'left-to-right',
                       itemOpacity: 0.85,
                       symbolSize: 20,
+                      itemTextColor: 'hsl(var(--foreground))',
                       effects: [
                         {
                           on: 'hover',
@@ -417,6 +370,41 @@ const AdminDashboard = () => {
                   ]}
                   animate={true}
                   motionConfig="wobbly"
+                  theme={{
+                    background: 'transparent',
+                    textColor: 'hsl(var(--foreground))',
+                    fontSize: 11,
+                    axis: {
+                      domain: {
+                        line: {
+                          stroke: 'hsl(var(--border))',
+                          strokeWidth: 1
+                        }
+                      },
+                      legend: {
+                        text: {
+                          fontSize: 12,
+                          fill: 'hsl(var(--foreground))'
+                        }
+                      },
+                      ticks: {
+                        line: {
+                          stroke: 'hsl(var(--border))',
+                          strokeWidth: 1
+                        },
+                        text: {
+                          fontSize: 11,
+                          fill: 'hsl(var(--muted-foreground))'
+                        }
+                      }
+                    },
+                    grid: {
+                      line: {
+                        stroke: 'hsl(var(--border))',
+                        strokeWidth: 1
+                      }
+                    }
+                  }}
                 />
               </div>
             </CardContent>
@@ -429,20 +417,20 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4 h-80 flex flex-col justify-center">
-                {stats?.engagementData?.map((item, index) => (
+                {stats.engagementData.map((item, index) => (
                   <div key={item.category} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>{item.category}</span>
-                      <span className="font-medium">{item.percentage}%</span>
+                      <span className="font-medium">{item.category}</span>
+                      <span className="font-bold text-lg">{item.percentage}%</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-3">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          index === 0 ? 'bg-purple-500' :
-                          index === 1 ? 'bg-green-500' :
-                          index === 2 ? 'bg-blue-500' :
-                          index === 3 ? 'bg-orange-500' :
-                          'bg-pink-500'
+                        className={`h-3 rounded-full transition-all duration-1000 ease-out shadow-sm ${
+                          index === 0 ? 'bg-purple-300' :
+                          index === 1 ? 'bg-green-200' :
+                          index === 2 ? 'bg-blue-300' :
+                          index === 3 ? 'bg-orange-200' :
+                          'bg-pink-200'
                         }`}
                         style={{ width: `${item.percentage}%` }}
                       />
@@ -456,90 +444,80 @@ const AdminDashboard = () => {
 
         {/* System Overview */}
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-          <Card>
+          <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Database className="h-5 w-5" />
+                <Database className="h-5 w-5 text-slate-600" />
                 System Health
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-sm">Total Chapters</span>
-                <span className="font-medium">{stats?.totalChapters || 0}</span>
+                <span className="font-bold text-lg text-slate-600">{stats.totalChapters}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-sm">Quiz Attempts</span>
-                <span className="font-medium">{stats?.totalQuizzes || 0}</span>
+                <span className="font-bold text-lg text-slate-600">{stats.totalQuizzes}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-sm">Admin Users</span>
-                <span className="font-medium">{stats?.totalAdmins || 0}</span>
+                <span className="font-bold text-lg text-slate-600">{stats.totalAdmins}</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <BarChart3 className="h-5 w-5 text-indigo-600" />
                 User Distribution
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm">Students</span>
-                  <span className="font-medium">{stats?.totalStudents || 0}</span>
+                  <span className="font-bold text-lg text-indigo-600">{stats.totalStudents}</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
-                    className="bg-purple-500 h-2 rounded-full" 
-                    style={{ 
-                      width: `${stats?.totalUsers ? (stats.totalStudents / stats.totalUsers) * 100 : 0}%` 
-                    }}
+                    className="bg-purple-300 h-2 rounded-full transition-all duration-1000" 
+                    style={{ width: `${(stats.totalStudents / stats.totalUsers) * 100}%` }}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm">Instructors</span>
-                  <span className="font-medium">{stats?.totalInstructors || 0}</span>
+                  <span className="font-bold text-lg text-indigo-600">{stats.totalInstructors}</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
-                    className="bg-green-500 h-2 rounded-full" 
-                    style={{ 
-                      width: `${stats?.totalUsers ? (stats.totalInstructors / stats.totalUsers) * 100 : 0}%` 
-                    }}
+                    className="bg-green-300 h-2 rounded-full transition-all duration-1000" 
+                    style={{ width: `${(stats.totalInstructors / stats.totalUsers) * 100}%` }}
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="/courses">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Manage Courses
-                </a>
+              <Button variant="outline" className="w-full justify-start hover:bg-purple-50 hover:border-purple-300">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Manage Courses
               </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="/content-hub">
-                  <Database className="h-4 w-4 mr-2" />
-                  Content Hub
-                </a>
+              <Button variant="outline" className="w-full justify-start hover:bg-green-50 hover:border-green-300">
+                <Database className="h-4 w-4 mr-2" />
+                Content Hub
               </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="/settings">
-                  <Shield className="h-4 w-4 mr-2" />
-                  System Settings
-                </a>
+              <Button variant="outline" className="w-full justify-start hover:bg-blue-50 hover:border-blue-300">
+                <Shield className="h-4 w-4 mr-2" />
+                System Settings
               </Button>
             </CardContent>
           </Card>
@@ -553,64 +531,88 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {(stats?.courses?.length > 0 ? stats.courses.slice(0, 5) : [
-                {
-                  id: '1',
-                  title: 'Advanced React Development',
-                  code: '102',
-                  instructor: { full_name: 'Sarah Johnson' },
-                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45],
-                  created_at: '2024-01-15T10:30:00Z'
-                },
-                {
-                  id: '2',
-                  title: 'Python Data Science',
-                  code: '205',
-                  instructor: { full_name: 'Dr. Michael Chen' },
-                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
-                  created_at: '2024-01-10T14:20:00Z'
-                },
-                {
-                  id: '3',
-                  title: 'UI/UX Design Principles',
-                  code: '301',
-                  instructor: { full_name: 'Emma Rodriguez' },
-                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
-                  created_at: '2024-01-08T09:15:00Z'
-                },
-                {
-                  id: '4',
-                  title: 'Machine Learning Fundamentals',
-                  code: '401',
-                  instructor: { full_name: 'Prof. David Kumar' },
-                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-                  created_at: '2024-01-05T16:45:00Z'
-                },
-                {
-                  id: '5',
-                  title: 'Full-Stack Web Development',
-                  code: '501',
-                  instructor: { full_name: 'Alex Thompson' },
-                  enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-                  created_at: '2024-01-03T11:30:00Z'
-                }
-              ]).map((course: any) => (
-                <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-card-hover transition-colors">
-                  <div>
-                    <h3 className="font-medium">{course.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Code: {course.code} • Instructor: {course.instructor?.full_name || 'Unknown'} • 
-                      {course.enrollments?.length || 0} enrollments
-                    </p>
+              {stats.courses.map((course, index) => (
+                <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-card-hover transition-all duration-200 hover:shadow-md">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      index === 0 ? 'bg-purple-100 text-purple-600' :
+                      index === 1 ? 'bg-green-100 text-green-600' :
+                      index === 2 ? 'bg-blue-100 text-blue-600' :
+                      index === 3 ? 'bg-orange-100 text-orange-600' :
+                      'bg-pink-100 text-pink-600'
+                    }`}>
+                      <BookOpen className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">{course.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Code: <span className="font-medium">{course.code}</span> • 
+                        Instructor: <span className="font-medium">{course.instructor?.full_name}</span> • 
+                        <span className="font-medium text-green-600">{course.enrollments?.length} enrollments</span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(course.created_at).toLocaleDateString()}
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">
+                      Added: {new Date(course.created_at).toLocaleDateString()}
+                    </div>
+                    <div className={`text-xs px-2 py-1 rounded-full mt-1 ${
+                      course.enrollments?.length > 40 ? 'bg-green-100 text-green-700' :
+                      course.enrollments?.length > 25 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {course.enrollments?.length > 40 ? 'High Demand' :
+                       course.enrollments?.length > 25 ? 'Popular' : 'Growing'}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+
+        {/* Additional Statistics Section */}
+        <div className="grid gap-6 md:grid-cols-4 mt-8">
+          <Card className="bg-gradient-to-r from-cyan-500/10 to-cyan-600/10 border-cyan-200 dark:border-cyan-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Content Views</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-cyan-600">{stats.totalViews.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Total content views</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-pink-500/10 to-pink-600/10 border-pink-200 dark:border-pink-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Downloads</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-pink-600">{stats.totalDownloads.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Resource downloads</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-teal-500/10 to-teal-600/10 border-teal-200 dark:border-teal-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Quiz Success Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-teal-600">82%</div>
+              <p className="text-xs text-muted-foreground">Average passing rate</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-violet-500/10 to-violet-600/10 border-violet-200 dark:border-violet-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Active This Month</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-violet-600">287</div>
+              <p className="text-xs text-muted-foreground">Monthly active users</p>
+            </CardContent>
+          </Card>
+        </div>
       </main>
       <Footer />
     </div>
