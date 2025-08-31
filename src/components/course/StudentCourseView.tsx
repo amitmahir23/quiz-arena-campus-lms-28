@@ -30,7 +30,15 @@ const StudentCourseView = () => {
           *,
           chapters (
             *,
-            chapter_materials (*)
+            chapter_materials (
+              *,
+              quizzes (
+                id,
+                title,
+                description,
+                question_count
+              )
+            )
           )
         `)
         .eq('id', courseId)
@@ -112,7 +120,9 @@ const StudentCourseView = () => {
                       <AccordionContent className="px-4 pb-4 pt-2">
                         {chapter.chapter_materials && chapter.chapter_materials.length > 0 ? (
                           <div className="space-y-3">
-                            {chapter.chapter_materials.map((material: any, materialIndex: number) => {
+                            {chapter.chapter_materials
+                              .sort((a: any, b: any) => (a.order_position || 0) - (b.order_position || 0))
+                              .map((material: any, materialIndex: number) => {
                               const isAccessible = isMaterialAccessible(chapterIndex, materialIndex, chapter.chapter_materials);
                               const isCompleted = completedMaterials.includes(material.id);
 

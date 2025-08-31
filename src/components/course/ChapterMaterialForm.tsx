@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +25,7 @@ interface ChapterMaterialFormProps {
 }
 
 const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterialFormProps) => {
-  const [type, setType] = useState<'text' | 'file' | 'video'>('text');
+  const [type, setType] = useState<'text' | 'file' | 'video' | 'quiz'>('text');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -33,6 +33,38 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
   const [isAssignment, setIsAssignment] = useState(false);
   const [deadline, setDeadline] = useState<Date>();
   const [totalMarks, setTotalMarks] = useState(100);
+  const [selectedQuiz, setSelectedQuiz] = useState<string>('');
+  const [availableQuizzes, setAvailableQuizzes] = useState<any[]>([]);
+
+  // Fetch available quizzes when quiz type is selected
+  useEffect(() => {
+    if (type === 'quiz') {
+      fetchAvailableQuizzes();
+    }
+  }, [type]);
+
+  const fetchAvailableQuizzes = async () => {
+    try {
+      // Get course ID from chapter
+      const { data: chapterData } = await supabase
+        .from('chapters')
+        .select('course_id')
+        .eq('id', chapterId)
+        .single();
+
+      if (chapterData) {
+        const { data: quizzes } = await supabase
+          .from('quizzes')
+          .select('id, title, description, question_count')
+          .eq('course_id', chapterData.course_id)
+          .eq('is_published', true);
+
+        setAvailableQuizzes(quizzes || []);
+      }
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +97,7 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
         url = publicUrl;
       }
 
-      const { data: materialData, error: materialError } = await supabase
+        const { data: materialData, error: materialError } = await supabase
         .from('chapter_materials')
         .insert({
           chapter_id: chapterId,
@@ -73,7 +105,9 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
           type,
           content: type === 'text' ? content : null,
           url,
-          is_assignment: isAssignment
+          is_assignment: isAssignment,
+          quiz_id: type === 'quiz' ? selectedQuiz : null,
+          order_position: 0 // Will be updated by trigger or manually
         })
         .select()
         .single();
@@ -114,7 +148,7 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
             <label className="text-sm font-medium">Material Type</label>
             <Select
               value={type}
-              onValueChange={(value) => setType(value as 'text' | 'file' | 'video')}
+              onValueChange={(value) => setType(value as 'text' | 'file' | 'video' | 'quiz')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select material type" />
@@ -123,6 +157,7 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
                 <SelectItem value="text">Text Content</SelectItem>
                 <SelectItem value="file">Document/PDF</SelectItem>
                 <SelectItem value="video">Video</SelectItem>
+                <SelectItem value="quiz">Quiz</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -193,6 +228,32 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {type === 'quiz' && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Quiz</label>
+              <Select
+                value={selectedQuiz}
+                onValueChange={setSelectedQuiz}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a quiz to embed" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableQuizzes.map((quiz) => (
+                    <SelectItem key={quiz.id} value={quiz.id}>
+                      {quiz.title} ({quiz.question_count} questions)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {availableQuizzes.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No published quizzes available. Create a quiz first.
+                </p>
+              )}
             </div>
           )}
 

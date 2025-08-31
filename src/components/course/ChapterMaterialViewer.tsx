@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import TextToSpeech from "@/components/ui/text-to-speech";
-import StudyMaterial from "./StudyMaterial";
+import EmbeddedQuiz from './EmbeddedQuiz';
 
 interface ChapterMaterialViewerProps {
   material: any;
@@ -95,6 +95,14 @@ const ChapterMaterialViewer = ({
               <LinkIcon className="h-4 w-4" />
             </a>
           </div>
+        );
+      case 'quiz':
+        return (
+          <EmbeddedQuiz 
+            quizId={material.quiz_id}
+            onComplete={onComplete}
+            isCompleted={isCompleted}
+          />
         );
       default:
         return <p>Unknown material type</p>;
@@ -198,11 +206,8 @@ const ChapterMaterialViewer = ({
       <CardContent>
         {renderMaterialContent()}
         
-        {material.type === 'text' && (
-          <StudyMaterial topic={material.title} />
-        )}
-
-        {!isCompleted && onComplete && (
+        {/* Only show Mark as Complete for non-quiz materials or if quiz type but not handled by EmbeddedQuiz */}
+        {!isCompleted && onComplete && material.type !== 'quiz' && (
           <div className="mt-4 flex justify-end">
             <Button onClick={onComplete}>
               Mark as Complete

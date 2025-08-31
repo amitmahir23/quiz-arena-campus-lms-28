@@ -56,6 +56,14 @@ const CourseBrowser = () => {
     };
   }, [user?.id]);
 
+  useEffect(() => {
+    const filtered = courses.filter(course =>
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.preview_description?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCourses(filtered);
+  }, [searchTerm, courses]);
+
   const fetchCourses = async () => {
     try {
       const { data, error } = await supabase
