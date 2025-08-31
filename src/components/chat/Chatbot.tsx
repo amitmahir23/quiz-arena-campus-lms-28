@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+
+// Update this to your Render backend URL
+const API_BASE_URL = "https://quiz-arena-campus-lms-28.onrender.com";
 
 export const Chatbot = () => {
   const [studentId, setStudentId] = useState("");
@@ -22,21 +24,31 @@ export const Chatbot = () => {
 
     try {
       // Step 1: Fetch student progress & deadlines
-      console.log("Fetching data from:", "http://127.0.0.1:5000/fetch");
-      const fetchRes = await axios.post("http://127.0.0.1:5000/fetch", {
+      console.log("Fetching data from:", `${API_BASE_URL}/fetch`);
+      const fetchRes = await axios.post(`${API_BASE_URL}/fetch`, {
         student_id: studentId,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30 second timeout for Render cold starts
       });
 
       console.log("Fetch response:", fetchRes.data);
       const { progress, deadlines } = fetchRes.data;
 
       // Step 2: Send full data to chatbot
-      console.log("Sending to chatbot:", "http://127.0.0.1:5000/chat_with_data");
-      const chatRes = await axios.post("http://127.0.0.1:5000/chat_with_data", {
+      console.log("Sending to chatbot:", `${API_BASE_URL}/chat_with_data`);
+      const chatRes = await axios.post(`${API_BASE_URL}/chat_with_data`, {
         student_id: studentId,
         message: input,
         progress,
         deadlines,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 60000, // 60 second timeout for AI processing
       });
 
       console.log("Chat response:", chatRes.data);
@@ -53,8 +65,11 @@ export const Chatbot = () => {
         console.error("Response error data:", err.response.data);
       } else if (err.request) {
         // The request was made but no response was received
-        errorMessage += ": No response received. Is the Flask server running?";
+        errorMessage += ": No response received. Server may be starting up (this can take 30-60 seconds on first request).";
         console.error("Request made but no response:", err.request);
+      } else if (err.code === 'ECONNABORTED') {
+        // Request timeout
+        errorMessage += ": Request timed out. The server may be processing your request.";
       } else {
         // Something happened in setting up the request that triggered an Error
         errorMessage += `: ${err.message}`;
@@ -65,7 +80,11 @@ export const Chatbot = () => {
         { sender: "Bot", text: errorMessage },
       ]);
       
-      toast.error("Failed to connect to the chat server. Please make sure the Flask backend is running.");
+      if (err.code === 'ECONNABORTED') {
+        toast.error("Request timed out. Please try again.");
+      } else {
+        toast.error("Failed to connect to the chat server. The server may be starting up - please wait a moment and try again.");
+      }
     }
 
     setInput("");
@@ -101,6 +120,8 @@ export const Chatbot = () => {
                   <li>What's my progress in my courses?</li>
                   <li>Do I have any upcoming deadlines?</li>
                   <li>When is my next assignment due?</li>
+                  <li>How am I performing compared to my classmates?</li>
+                  <li>What should I focus on studying next?</li>
                 </ul>
               </div>
             </div>
@@ -118,6 +139,15 @@ export const Chatbot = () => {
               <p className="whitespace-pre-wrap">{msg.text}</p>
             </div>
           ))}
+          {loading && (
+            <div className="bg-muted p-3 rounded-lg max-w-[80%]">
+              <p className="text-sm font-semibold mb-1">Bot</p>
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Analyzing your academic data...</span>
+              </div>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
@@ -126,8 +156,8 @@ export const Chatbot = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Ask something..."
-          disabled={!studentId}
+          placeholder={studentId ? "Ask something..." : "Enter student ID first"}
+          disabled={!studentId || loading}
           className="flex-1"
         />
         <Button onClick={handleSend} disabled={loading || !input || !studentId}>
