@@ -7,13 +7,14 @@ import { toast } from 'sonner';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Users, MessageSquare, HelpCircle } from 'lucide-react';
+import { FileText, Users, MessageSquare, HelpCircle, FolderOpen } from 'lucide-react';
 import { useCourseChapters, useChapterMutations } from '@/hooks/useCourseChapters';
 import { useCourseComments, useCommentMutations } from '@/hooks/useCourseComments';
 import CourseHeader from '@/components/course/CourseHeader';
 import ContentTab from '@/components/course/ContentTab';
 import StudentsTab from '@/components/course/StudentsTab';
 import CourseForum from '@/components/course/CourseForum';
+import ContentHub from '@/components/course/ContentHub';
 import { Button } from '@/components/ui/button';
 
 const CourseManagement = () => {
@@ -117,6 +118,10 @@ const CourseManagement = () => {
               <FileText className="h-4 w-4" />
               Content
             </TabsTrigger>
+            <TabsTrigger value="content-hub" className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Materials
+            </TabsTrigger>
             <TabsTrigger value="students" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Students
@@ -135,6 +140,10 @@ const CourseManagement = () => {
               addMaterial={handleAddMaterial}
               deleteMaterial={deleteMaterial}
             />
+          </TabsContent>
+
+          <TabsContent value="content-hub">
+            <ContentHub courseId={courseId || ''} />
           </TabsContent>
 
           <TabsContent value="students">

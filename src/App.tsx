@@ -20,7 +20,6 @@ import Cart from "./pages/Cart";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import ContentHub from "./pages/ContentHub";
 import HelpCenter from "./pages/HelpCenter";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
@@ -53,7 +52,7 @@ const App = () => {
               <Route path="/quizzes" element={<ProtectedRoute><QuizBattles /></ProtectedRoute>} />
               <Route path="/quiz-battles" element={<QuizBattles />} />
               <Route path="/quiz-battle/:roomId" element={<QuizBattlePage />} />
-              <Route path="/content-hub" element={<ProtectedRoute><ContentHub /></ProtectedRoute>} />
+              
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/contact" element={<ContactUs />} />
