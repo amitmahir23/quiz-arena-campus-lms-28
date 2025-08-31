@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import QuizCreationForm from './QuizCreationForm';
+import { useAuth } from '@/lib/auth';
 
 interface ChapterMaterialFormProps {
   chapterId: string;
@@ -26,6 +27,7 @@ interface ChapterMaterialFormProps {
 }
 
 const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterialFormProps) => {
+  const { user } = useAuth();
   const [type, setType] = useState<'text' | 'file' | 'video' | 'quiz'>('text');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -37,6 +39,7 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
   const [selectedQuiz, setSelectedQuiz] = useState<string>('');
   const [showQuizCreation, setShowQuizCreation] = useState(false);
   const [courseId, setCourseId] = useState<string>('');
+  const [quizzes, setQuizzes] = useState<{ id: string; title: string; is_published: boolean }[]>([]);
 
   // Fetch course ID when quiz type is selected
   useEffect(() => {
@@ -59,7 +62,22 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
     } catch (error) {
       console.error('Error fetching course ID:', error);
     }
+};
+
+// Fetch instructor's quizzes for this course when quiz type is selected
+useEffect(() => {
+  const fetchQuizzes = async () => {
+    if (type !== 'quiz' || !courseId || !user?.id) return;
+    const { data, error } = await supabase
+      .from('quizzes')
+      .select('id,title,is_published')
+      .eq('course_id', courseId)
+      .eq('created_by', user.id);
+    if (!error && data) setQuizzes(data);
   };
+  fetchQuizzes();
+}, [type, courseId, user?.id]);
+
 
   const handleQuizCreated = (quizId: string) => {
     setSelectedQuiz(quizId);
@@ -67,15 +85,19 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
     toast.success('Quiz created and selected successfully!');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      toast.error('Title is required');
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (type === 'quiz' && !selectedQuiz) {
+    toast.error('Please select or create a quiz to embed');
+    return;
+  }
+  if (type !== 'quiz' && !title.trim()) {
+    toast.error('Title is required');
+    return;
+  }
 
-    setLoading(true);
-    try {
+  setLoading(true);
+  try {
       let url = null;
 
       if ((type === 'file' || type === 'video') && file) {
@@ -99,10 +121,10 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
       }
 
         const { data: materialData, error: materialError } = await supabase
-        .from('chapter_materials')
+.from('chapter_materials')
         .insert({
           chapter_id: chapterId,
-          title,
+          title: type === 'quiz' ? (title || (quizzes.find(q => q.id === selectedQuiz)?.title || 'Quiz')) : title,
           type,
           content: type === 'text' ? content : null,
           url,
@@ -113,9 +135,17 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
         .select()
         .single();
 
-      if (materialError) throw materialError;
+if (materialError) throw materialError;
 
-      if (isAssignment && deadline) {
+// Ensure the selected quiz is published so students can view questions
+if (type === 'quiz' && selectedQuiz) {
+  await supabase
+    .from('quizzes')
+    .update({ is_published: true })
+    .eq('id', selectedQuiz);
+}
+
+if (isAssignment && deadline) {
         // Convert Date to ISO string for database
         const deadlineStr = deadline.toISOString();
         
@@ -167,9 +197,9 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
             <label className="text-sm font-medium">Title</label>
             <Input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter material title"
-              required
+              required={type !== 'quiz'}
             />
           </div>
 
@@ -232,26 +262,45 @@ const ChapterMaterialForm = ({ chapterId, onSuccess, onCancel }: ChapterMaterial
             </div>
           )}
 
-          {type === 'quiz' && !showQuizCreation && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Quiz</label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setShowQuizCreation(true)}
-                >
-                  Create New Quiz
-                </Button>
-              </div>
-              {selectedQuiz && (
-                <p className="text-sm text-green-600">
-                  ✓ Quiz created and will be embedded in this material
-                </p>
-              )}
-            </div>
-          )}
+{type === 'quiz' && !showQuizCreation && (
+  <div className="space-y-3">
+    <div className="flex items-center justify-between">
+      <label className="text-sm font-medium">Select Quiz</label>
+      <Button 
+        type="button" 
+        variant="outline" 
+        size="sm"
+        onClick={() => setShowQuizCreation(true)}
+      >
+        Create New Quiz
+      </Button>
+    </div>
+    {quizzes.length > 0 ? (
+      <Select
+        value={selectedQuiz}
+        onValueChange={(value) => {
+          setSelectedQuiz(value);
+          const q = quizzes.find(q => q.id === value);
+          if (q && !title) setTitle(q.title);
+        }}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Choose an existing quiz" />
+        </SelectTrigger>
+        <SelectContent>
+          {quizzes.map(q => (
+            <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    ) : (
+      <p className="text-sm text-muted-foreground">No quizzes yet for this course. Create one.</p>
+    )}
+    {selectedQuiz && (
+      <p className="text-sm text-green-600">✓ Quiz selected and will be embedded in this material</p>
+    )}
+  </div>
+)}
 
           {type === 'quiz' && showQuizCreation && (
             <QuizCreationForm
