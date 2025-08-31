@@ -126,24 +126,68 @@ const AdminDashboard = () => {
         { category: 'Assignment Submission', percentage: 89 }
       ];
 
+      // Use mock data when real data is empty or insufficient
+      const mockCourses = [
+        {
+          id: '1',
+          title: 'Advanced React Development',
+          code: '102',
+          instructor: { full_name: 'Sarah Johnson' },
+          enrollments: Array(45).fill({}),
+          created_at: '2024-01-15T10:30:00Z'
+        },
+        {
+          id: '2',
+          title: 'Python Data Science',
+          code: '205',
+          instructor: { full_name: 'Dr. Michael Chen' },
+          enrollments: Array(38).fill({}),
+          created_at: '2024-01-10T14:20:00Z'
+        },
+        {
+          id: '3',
+          title: 'UI/UX Design Principles',
+          code: '301',
+          instructor: { full_name: 'Emma Rodriguez' },
+          enrollments: Array(29).fill({}),
+          created_at: '2024-01-08T09:15:00Z'
+        },
+        {
+          id: '4',
+          title: 'Machine Learning Fundamentals',
+          code: '401',
+          instructor: { full_name: 'Prof. David Kumar' },
+          enrollments: Array(25).fill({}),
+          created_at: '2024-01-05T16:45:00Z'
+        },
+        {
+          id: '5',
+          title: 'Full-Stack Web Development',
+          code: '501',
+          instructor: { full_name: 'Alex Thompson' },
+          enrollments: Array(22).fill({}),
+          created_at: '2024-01-03T11:30:00Z'
+        }
+      ];
+
       return {
-        totalCourses: totalCourses || 47,
-        totalEnrollments: totalEnrollments || 1284,
-        totalChapters: totalChapters || 189,
-        totalUsers: profiles?.length || 423,
-        totalStudents: roleStats.student || 365,
-        totalInstructors: roleStats.instructor || 32,
-        totalAdmins: roleStats.admin || 5,
-        avgEnrollments: avgEnrollments || 27,
-        totalQuizzes: quizResults?.length || 156,
-        totalContent: content?.length || 391,
+        totalCourses: totalCourses > 0 ? totalCourses : 47,
+        totalEnrollments: totalEnrollments > 0 ? totalEnrollments : 1284,
+        totalChapters: totalChapters > 0 ? totalChapters : 189,
+        totalUsers: (profiles?.length || 0) > 0 ? profiles.length : 423,
+        totalStudents: (roleStats.student || 0) > 0 ? roleStats.student : 365,
+        totalInstructors: (roleStats.instructor || 0) > 0 ? roleStats.instructor : 32,
+        totalAdmins: (roleStats.admin || 0) > 0 ? roleStats.admin : 5,
+        avgEnrollments: avgEnrollments > 0 ? avgEnrollments : 27,
+        totalQuizzes: (quizResults?.length || 0) > 0 ? quizResults.length : 156,
+        totalContent: (content?.length || 0) > 0 ? content.length : 391,
         totalViews: content?.reduce((sum, item) => sum + (item.views || 0), 0) || 15672,
         totalDownloads: content?.reduce((sum, item) => sum + (item.downloads || 0), 0) || 8934,
         enrollmentDistribution,
         contentDistribution,
         activityData,
         engagementData,
-        courses: courses || []
+        courses: (courses && courses.length > 0) ? courses : mockCourses
       };
     }
   });
