@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,12 +40,20 @@ const cardImages = [
 
 const CourseBrowser = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [courseCode, setCourseCode] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
   const queryClient = useQueryClient();
   const [selectedCardId, setSelectedCardId] = useState(null);
+
+  // Redirect instructors to their course management page
+  useEffect(() => {
+    if (profile?.role === 'instructor') {
+      navigate('/dashboard');
+      toast.error('Instructors cannot enroll in courses. Manage your courses from the dashboard.');
+    }
+  }, [profile, navigate]);
 
   // Added missing handleCardClick function
   const handleCardClick = (courseId: string) => {
@@ -86,9 +94,14 @@ const CourseBrowser = () => {
     enabled: !!user
   });
 
-  // Enroll in a course
+  // Enroll in a course (students only)
   const enrollMutation = useMutation({
     mutationFn: async (courseId: string) => {
+      // Check if user is a student
+      if (profile?.role !== 'student') {
+        throw new Error('Only students can enroll in courses');
+      }
+      
       const { data, error } = await supabase
         .from('enrollments')
         .insert({
@@ -114,9 +127,14 @@ const CourseBrowser = () => {
     }
   });
 
-  // Enroll with course code
+  // Enroll with course code (students only)
   const enrollWithCodeMutation = useMutation({
     mutationFn: async (code: string) => {
+      // Check if user is a student
+      if (profile?.role !== 'student') {
+        throw new Error('Only students can enroll in courses');
+      }
+      
       // First find the course with this code
       const { data: courseData, error: courseError } = await supabase
         .from('courses')

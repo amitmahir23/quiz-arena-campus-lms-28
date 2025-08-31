@@ -25,7 +25,7 @@ import ActivityHeatmap from "@/components/analytics/ActivityHeatmap"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const StudentDashboard = () => {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [courseCode, setCourseCode] = useState("")
   const [meetingCode, setMeetingCode] = useState("")
@@ -38,6 +38,12 @@ const StudentDashboard = () => {
     e.preventDefault()
     if (!courseCode.trim()) {
       toast.error("Please enter a course code")
+      return
+    }
+
+    // Check if user is a student
+    if (user && profile?.role !== 'student') {
+      toast.error("Only students can enroll in courses")
       return
     }
 
