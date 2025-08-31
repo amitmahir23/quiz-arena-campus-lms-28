@@ -98,6 +98,8 @@ export type Database = {
           created_at: string | null
           id: string
           is_assignment: boolean | null
+          order_position: number | null
+          quiz_id: string | null
           title: string
           type: string
           updated_at: string | null
@@ -109,6 +111,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_assignment?: boolean | null
+          order_position?: number | null
+          quiz_id?: string | null
           title: string
           type: string
           updated_at?: string | null
@@ -120,6 +124,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_assignment?: boolean | null
+          order_position?: number | null
+          quiz_id?: string | null
           title?: string
           type?: string
           updated_at?: string | null
@@ -131,6 +137,13 @@ export type Database = {
             columns: ["chapter_id"]
             isOneToOne: false
             referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapter_materials_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
             referencedColumns: ["id"]
           },
         ]
