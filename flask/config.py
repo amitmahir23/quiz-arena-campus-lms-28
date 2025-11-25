@@ -11,4 +11,4 @@ SUPABASE_HEADERS = {
 }
 
 # Gemini settings - Use environment variable for production
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDY5FJ3Ff4EgaePkg-4owlVoFvK9KruhpQ")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyA_YKJD1mTup6LcwuT5EHCJW3f-ZT6TBtU")

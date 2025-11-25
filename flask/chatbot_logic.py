@@ -2,7 +2,7 @@
 import google.generativeai as genai
 import requests
 
-genai.configure(api_key="AIzaSyDY5FJ3Ff4EgaePkg-4owlVoFvK9KruhpQ")
+genai.configure(api_key="AIzaSyA_YKJD1mTup6LcwuT5EHCJW3f-ZT6TBtU")
 model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
 BACKEND_API = "https://quiz-arena-campus-lms-28.onrender.com"

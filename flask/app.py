@@ -183,8 +183,10 @@ def chatbot_with_data(user_input, student_id, data_blocks):
     info = "\n\n".join(data_blocks)
 
     prompt = f"""
-    You are a helpful academic assistant. A student has asked you a question. 
-    Use the info below to respond accurately and kindly. Keep responses concise.
+    You are a helpful academic assistant. A student has asked you a question.
+    
+    If the question is about the student's data (progress, deadlines, etc.), use the 'Info' below to answer.
+    If the question is a general academic question (like "what is DBMS?"), answer it using your general knowledge.
 
     Student ID: {student_id}
     Question: "{user_input}"
@@ -200,12 +202,15 @@ def chatbot_with_data(user_input, student_id, data_blocks):
         return response.text.strip()
     except Exception as e:
         error_str = str(e).lower()
+        print(f"DEBUG - Actual Gemini Error: {e}") # <--- ADD THIS LINE to see the error in your terminal
+        
         if "resourceexhausted" in error_str or "429" in error_str or "quota" in error_str:
             return f"🤖 AI assistant is temporarily busy due to high usage. Here's your data summary instead:\n\n{info}"
         elif "authentication" in error_str or "401" in error_str:
             return "🤖 AI service authentication issue. Please check API configuration."
         else:
-            return f"🤖 AI assistant error. Here's your data summary:\n\n{info}"
+            # Optionally include the error in the return message while debugging
+            return f"🤖 AI assistant error ({str(e)}). Here's your data summary:\n\n{info}"
 
 
 @app.route("/fetch", methods=["POST"])
